@@ -1,0 +1,4 @@
+{"__REALTIME_TIMESTAMP":"1000000","__MONOTONIC_TIMESTAMP":"100","_BOOT_ID":"synthetic-boot-a","PRIORITY":"6","MESSAGE":"Synthetic service started.","MESSAGE_ID":null,"_TRANSPORT":"journal","_SYSTEMD_UNIT":"synthetic.service","SYSLOG_IDENTIFIER":"systemd"}
+
+{"__REALTIME_TIMESTAMP":"1000500","__MONOTONIC_TIMESTAMP":"600","_BOOT_ID":"synthetic-boot-a","PRIORITY":"5","MESSAGE":"Synthetic warning.","_TRANSPORT":"journal","_SYSTEMD_UNIT":"synthetic.service","SYSLOG_IDENTIFIER":"synthetic-worker"}
+{"__REALTIME_TIMESTAMP":"1001000","__MONOTONIC_TIMESTAMP":"10","_BOOT_ID":"synthetic-boot-b","PRIORITY":"3","MESSAGE":"Synthetic boot error.","_TRANSPORT":"kernel","SYSLOG_IDENTIFIER":"kernel"}
