@@ -172,3 +172,26 @@ def test_normalized_event_rejects_non_string_text_values(
 ) -> None:
     with pytest.raises(ValueError):
         make_normalized_event(**{field: 123})
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        float("inf"),
+        float("-inf"),
+        float("nan"),
+        {"nested": float("inf")},
+        [0, float("-inf")],
+    ],
+)
+def test_raw_event_rejects_nonfinite_json_numbers(
+    value: object,
+) -> None:
+    with pytest.raises(
+        ValueError,
+        match="JSON number values must be finite",
+    ):
+        RawJournalEvent(
+            source_line=1,
+            fields={"VALUE": value},
+        )

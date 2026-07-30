@@ -26,6 +26,7 @@ The decoder rejects:
 - top-level arrays, strings, numbers, booleans, and null values;
 - duplicate object keys, including duplicates inside nested objects;
 - non-standard constants such as `NaN` and positive or negative infinity;
+- numeric overflow that would produce a non-finite floating-point value;
 - input lines that are not text.
 
 Every rejection produces `JournalParseError` with the physical source line

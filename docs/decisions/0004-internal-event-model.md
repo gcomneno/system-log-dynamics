@@ -32,6 +32,7 @@ identifier.
 ## Validation
 
 - Boolean values are never accepted as integers.
+- Floating-point raw JSON values must be finite.
 - Sequence indexes and temporal values are non-negative.
 - Source line numbers are positive.
 - Priorities are limited to the syslog range from zero through seven.

@@ -108,10 +108,18 @@ def iter_journal_json_lines(
                 f"expected a JSON object, got {type_name}",
             )
 
-        yield RawJournalEvent(
-            source_line=source_line,
-            fields=decoded,
-        )
+        try:
+            event = RawJournalEvent(
+                source_line=source_line,
+                fields=decoded,
+            )
+        except ValueError as exc:
+            raise JournalParseError(
+                source_line,
+                f"invalid JSON value: {exc}",
+            ) from exc
+
+        yield event
 
 
 def _optional_nonnegative_integer(

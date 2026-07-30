@@ -99,3 +99,37 @@ def test_decoder_rejects_non_text_input_line() -> None:
                 [b'{"MESSAGE":"bytes"}\n']
             )
         )
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        '{"VALUE":1e999}',
+        '{"VALUE":-1e999}',
+        '{"NESTED":{"VALUE":1e999}}',
+        '{"VALUES":[0,1e999]}',
+    ],
+)
+def test_decoder_rejects_numeric_overflow_to_nonfinite_float(
+    payload: str,
+) -> None:
+    with pytest.raises(JournalParseError) as caught:
+        list(
+            iter_journal_json_lines(
+                [
+                    "\n",
+                    payload + "\n",
+                ]
+            )
+        )
+
+    assert caught.value.source_line == 2
+    assert caught.value.detail == (
+        "invalid JSON value: JSON number values must be finite"
+    )
+
+
+def test_decoder_accepts_large_but_finite_float() -> None:
+    events = list(iter_journal_json_lines(['{"VALUE":1e308}\n']))
+
+    assert events[0].fields["VALUE"] == 1e308

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -68,7 +69,12 @@ def _freeze_json_value(value: object) -> object:
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_json_value(item) for item in value)
 
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("JSON number values must be finite")
+        return value
+
+    if value is None or isinstance(value, (str, int, bool)):
         return value
 
     raise ValueError("fields must contain only JSON-compatible values")
