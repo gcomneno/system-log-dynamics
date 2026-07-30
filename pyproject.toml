@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "system-log-dynamics"
+version = "0.1.0"
+description = "Reproducible analysis of discrete event sequences derived from Linux journals"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "Giancarlo Cicellyn Comneno" },
+]
+dependencies = [
+    "digit-probe @ git+https://github.com/gcomneno/digit-probe.git@55e3eae4c55017703e023c1aaac0838b873482db",
+]
+
+[project.urls]
+Repository = "https://github.com/gcomneno/system-log-dynamics"
+Issues = "https://github.com/gcomneno/system-log-dynamics/issues"
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2",
+    "pytest>=8.3",
+    "ruff>=0.12",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
