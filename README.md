@@ -7,7 +7,7 @@ analyzing them through the public Python API of Digit-Probe.
 ## Status
 
 The strict journal JSON Lines parser, privacy-safe normalizer, and
-deterministic streaming classifier are implemented. Validated integer encoding is implemented. Digit-Probe analysis, reporting, and the command-line interface remain
+deterministic streaming classifier are implemented. Validated integer encoding is implemented. Validated Digit-Probe analysis is implemented. Reporting and the command-line interface remain
 deferred.
 
 ## Purpose

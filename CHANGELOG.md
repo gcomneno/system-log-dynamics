@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added a validated, non-empty analysis boundary for the public Digit-Probe integer API.
+- Added a synthetic end-to-end contract from journal JSON Lines to structured analysis results.
 - Added validated, immutable, bijective event-symbol encoding for the nine-event alphabet.
 - Added lazy symbol validation and an exact synthetic end-to-end encoding fixture.
 - Initial project boundaries and architectural decisions.
