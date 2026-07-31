@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added validated, immutable, bijective event-symbol encoding for the nine-event alphabet.
+- Added lazy symbol validation and an exact synthetic end-to-end encoding fixture.
 - Initial project boundaries and architectural decisions.
 - First experiment contract.
 - Minimal package and Digit-Probe integration test.
