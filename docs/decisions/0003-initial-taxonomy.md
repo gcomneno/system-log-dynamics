@@ -63,3 +63,9 @@ precedence.
 
 Each result includes a stable rule identifier. Published rule identifiers are
 part of the experiment contract and must not be silently repurposed.
+
+## Integer representation
+
+Decision 0008 defines the separate validated integer representation of this
+taxonomy. Event semantics remain string-valued and independent from their
+stable symbols.
