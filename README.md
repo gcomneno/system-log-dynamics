@@ -6,8 +6,10 @@ analyzing them through the public Python API of Digit-Probe.
 
 ## Status
 
-Initial architecture and experiment contract. The parser, classifier,
-reporting pipeline, and command-line interface are not implemented yet.
+The strict journal JSON Lines parser, privacy-safe normalizer, and
+deterministic streaming classifier are implemented. Integer encoding,
+Digit-Probe analysis, reporting, and the command-line interface remain
+deferred.
 
 ## Purpose
 
