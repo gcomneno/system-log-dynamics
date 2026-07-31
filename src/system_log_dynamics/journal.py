@@ -323,6 +323,8 @@ def iter_normalized_events(
                 event,
                 "SYSLOG_IDENTIFIER",
             ),
+            unit=_optional_text(event, "UNIT"),
+            user_unit=_optional_text(event, "USER_UNIT"),
         )
 
 

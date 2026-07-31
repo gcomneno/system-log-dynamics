@@ -19,11 +19,15 @@ one-character decimal string.
 
 ## Text fields
 
-Selected textual fields accept only:
+Selected textual fields, including `_SYSTEMD_UNIT`, `UNIT`, and
+`USER_UNIT`, accept only:
 
 - a JSON string;
 - null;
 - an absent field.
+
+`_SYSTEMD_UNIT` identifies the source process unit. `UNIT` and `USER_UNIT`
+identify structured unit subjects and remain separate normalized fields.
 
 Arrays created by repeated journal fields are rejected because selecting one
 value would be arbitrary.

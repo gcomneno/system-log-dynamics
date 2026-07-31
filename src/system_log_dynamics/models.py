@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
+from enum import StrEnum
 from types import MappingProxyType
 
 
@@ -116,6 +117,8 @@ class NormalizedJournalEvent:
     transport: str | None
     systemd_unit: str | None
     syslog_identifier: str | None
+    unit: str | None = None
+    user_unit: str | None = None
 
     def __post_init__(self) -> None:
         _require_integer(
@@ -156,5 +159,76 @@ class NormalizedJournalEvent:
             "transport",
             "systemd_unit",
             "syslog_identifier",
+            "unit",
+            "user_unit",
         ):
             _require_optional_string(name, getattr(self, name))
+
+
+class EventType(StrEnum):
+    """Stable semantic classification assigned to one normalized event."""
+
+    BOOT_BOUNDARY = "boot_boundary"
+    SERVICE_STARTED = "service_started"
+    SERVICE_STOPPED = "service_stopped"
+    AUTHENTICATION_SUCCESS = "authentication_success"
+    AUTHENTICATION_FAILURE = "authentication_failure"
+    SESSION_BOUNDARY = "session_boundary"
+    WARNING = "warning"
+    ERROR = "error"
+    OTHER = "other"
+
+
+class SourceDomain(StrEnum):
+    """Stable source-domain metadata independent from event type."""
+
+    SERVICE = "service"
+    AUTHENTICATION = "authentication"
+    SESSION = "session"
+    KERNEL = "kernel"
+    NETWORK = "network"
+    OTHER = "other"
+
+
+class EvidenceLevel(StrEnum):
+    """Strength and origin of the classification evidence."""
+
+    EXACT = "exact"
+    HEURISTIC = "heuristic"
+    FALLBACK = "fallback"
+
+
+@dataclass(frozen=True, slots=True)
+class ClassifiedJournalEvent:
+    """One normalized event together with reproducible classifier metadata."""
+
+    normalized_event: NormalizedJournalEvent
+    event_type: EventType
+    source_domain: SourceDomain
+    rule_id: str
+    evidence: EvidenceLevel
+
+    def __post_init__(self) -> None:
+        if not isinstance(
+            self.normalized_event,
+            NormalizedJournalEvent,
+        ):
+            raise ValueError("normalized_event must be a NormalizedJournalEvent")
+
+        if not isinstance(self.event_type, EventType):
+            raise ValueError("event_type must be an EventType")
+
+        if not isinstance(self.source_domain, SourceDomain):
+            raise ValueError("source_domain must be a SourceDomain")
+
+        if not isinstance(self.evidence, EvidenceLevel):
+            raise ValueError("evidence must be an EvidenceLevel")
+
+        if (
+            not isinstance(self.rule_id, str)
+            or not self.rule_id
+            or self.rule_id != self.rule_id.strip()
+        ):
+            raise ValueError(
+                "rule_id must be a non-empty string without surrounding whitespace"
+            )

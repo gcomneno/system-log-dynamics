@@ -18,6 +18,8 @@ One JSON journal object per line, compatible with journalctl output=json.
 - MESSAGE_ID
 - _TRANSPORT
 - _SYSTEMD_UNIT
+- UNIT
+- USER_UNIT
 - SYSLOG_IDENTIFIER
 
 ## Normalization constraints
