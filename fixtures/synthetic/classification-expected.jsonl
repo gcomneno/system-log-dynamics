@@ -1,0 +1,14 @@
+{"sequence_index":0,"event_type":"boot_boundary","source_domain":"kernel","rule_id":"boot.index.changed","evidence":"exact"}
+{"sequence_index":1,"event_type":"service_started","source_domain":"service","rule_id":"service.message_id.started","evidence":"exact"}
+{"sequence_index":2,"event_type":"session_boundary","source_domain":"session","rule_id":"session.message_id.boundary","evidence":"exact"}
+{"sequence_index":3,"event_type":"session_boundary","source_domain":"session","rule_id":"session.message_id.boundary","evidence":"exact"}
+{"sequence_index":4,"event_type":"authentication_failure","source_domain":"authentication","rule_id":"authentication.message.failure","evidence":"heuristic"}
+{"sequence_index":5,"event_type":"authentication_success","source_domain":"authentication","rule_id":"authentication.message.success","evidence":"heuristic"}
+{"sequence_index":6,"event_type":"warning","source_domain":"network","rule_id":"severity.priority.warning","evidence":"exact"}
+{"sequence_index":7,"event_type":"error","source_domain":"kernel","rule_id":"severity.priority.error","evidence":"exact"}
+{"sequence_index":8,"event_type":"other","source_domain":"other","rule_id":"fallback.other","evidence":"fallback"}
+{"sequence_index":9,"event_type":"other","source_domain":"other","rule_id":"fallback.other","evidence":"fallback"}
+{"sequence_index":10,"event_type":"service_started","source_domain":"service","rule_id":"service.message.started","evidence":"heuristic"}
+{"sequence_index":11,"event_type":"service_stopped","source_domain":"service","rule_id":"service.message.stopped","evidence":"heuristic"}
+{"sequence_index":12,"event_type":"boot_boundary","source_domain":"kernel","rule_id":"boot.index.changed","evidence":"exact"}
+{"sequence_index":13,"event_type":"warning","source_domain":"other","rule_id":"severity.priority.warning","evidence":"exact"}

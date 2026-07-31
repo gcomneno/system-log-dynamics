@@ -24,7 +24,9 @@ sensitive journal values and must not be emitted in public reports.
 - a realtime offset in microseconds relative to the first accepted event;
 - an optional monotonic timestamp in microseconds;
 - an optional syslog priority from zero through seven;
-- selected optional textual journal fields.
+- selected optional textual journal fields;
+- the source process unit from `_SYSTEMD_UNIT`;
+- structured service subjects from `UNIT` and `USER_UNIT`.
 
 The normalized model does not contain the original realtime timestamp or boot
 identifier.

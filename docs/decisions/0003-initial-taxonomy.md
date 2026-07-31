@@ -1,45 +1,65 @@
-# Decision 0003 — Initial event taxonomy
+# Decision 0003 — Event taxonomy
 
 ## Status
 
-Provisional for experiment 001.
+Accepted for issue #3 on 2026-07-31.
 
-## Primary symbol alphabet
+## Event types
 
-- 0: boot_boundary
-- 1: service_started
-- 2: service_stopped
-- 3: authentication_success
-- 4: authentication_failure
-- 5: session_boundary
-- 6: warning
-- 7: error
-- 8: other
+The deterministic classifier produces exactly one of these stable string-valued
+event types:
 
-The alphabet size is 9.
+- `boot_boundary`
+- `service_started`
+- `service_stopped`
+- `authentication_success`
+- `authentication_failure`
+- `session_boundary`
+- `warning`
+- `error`
+- `other`
+
+The taxonomy does not assign integer symbols. Integer encoding is a separate
+downstream contract.
 
 ## Source domains
 
-Source domains are retained as metadata and are not encoded directly in
-the primary symbol:
+Every classified event also carries one source domain:
 
-- service
-- authentication
-- session
-- kernel
-- network
-- other
+- `service`
+- `authentication`
+- `session`
+- `kernel`
+- `network`
+- `other`
 
-## Classification evidence
+Source domain is metadata independent from event type. A kernel event may, for
+example, classify as `warning`, `error`, `boot_boundary`, or `other`.
 
-Every classified event must record the rule identifier and one of these
-evidence levels:
+## Evidence levels
 
-- exact
-- heuristic
-- fallback
+Every classified event records one evidence level:
 
-## Encoding boundary
+- `exact`: structured journal fields or explicit stream state;
+- `heuristic`: a bounded and documented textual rule;
+- `fallback`: no semantic or severity rule matched.
 
-Before calling Digit-Probe, every symbol must be a non-boolean integer in
-the interval from zero, inclusive, to the alphabet size, exclusive.
+## Rule precedence
+
+Event-type rules use first-match precedence:
+
+1. boot boundary;
+2. service lifecycle;
+3. session boundary;
+4. authentication failure, then authentication success;
+5. error severity;
+6. warning severity;
+7. fallback other.
+
+Source-domain selection is evaluated independently and does not modify this
+precedence.
+
+## Reproducibility
+
+Each result includes a stable rule identifier. Published rule identifiers are
+part of the experiment contract and must not be silently repurposed.
