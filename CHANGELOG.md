@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added immutable per-window analysis manifests with exact-byte SHA-256 provenance.
+- Added explicit manifest-schema and event-taxonomy versions.
+- Added effective Digit-Probe configuration snapshots and pinned-commit extraction from installed dependency metadata.
+- Added a synthetic vertical manifest contract over the exact 3387-byte classification fixture.
 - Added a validated, non-empty analysis boundary for the public Digit-Probe integer API.
 - Added a synthetic end-to-end contract from journal JSON Lines to structured analysis results.
 - Added validated, immutable, bijective event-symbol encoding for the nine-event alphabet.
