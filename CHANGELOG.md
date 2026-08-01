@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added deterministic, immutable temporal burst summaries over privacy-safe
+  normalized temporal coordinates.
 - Added immutable per-window analysis manifests with exact-byte SHA-256 provenance.
 - Added explicit manifest-schema and event-taxonomy versions.
 - Added effective Digit-Probe configuration snapshots and pinned-commit extraction from installed dependency metadata.
