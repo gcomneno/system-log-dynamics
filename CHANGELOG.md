@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added typed, deterministic, immutable comparisons for completed analysis
+  windows, including manifest compatibility, Digit-Probe metrics, and temporal
+  aggregates.
 - Added deterministic, immutable temporal burst summaries over privacy-safe
   normalized temporal coordinates.
 - Added immutable per-window analysis manifests with exact-byte SHA-256 provenance.
