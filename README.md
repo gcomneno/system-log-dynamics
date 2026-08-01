@@ -8,10 +8,11 @@ analyzing them through the public Python API of Digit-Probe.
 
 The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
-Digit-Probe analysis, and reproducible per-window analysis manifests are
-implemented. Deterministic immutable temporal burst summaries are also
-available for normalized event windows. Window comparison, reporting, and the
-command-line interface remain deferred.
+Digit-Probe analysis, reproducible per-window analysis manifests, and
+deterministic immutable temporal burst summaries are implemented. A typed,
+immutable comparison layer is available for two completed compatible windows;
+it reports descriptive deltas without rendering or inference. Reporting and
+the command-line interface remain deferred.
 
 ## Purpose
 
