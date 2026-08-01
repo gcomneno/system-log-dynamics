@@ -6,9 +6,11 @@ analyzing them through the public Python API of Digit-Probe.
 
 ## Status
 
-The strict journal JSON Lines parser, privacy-safe normalizer, and
-deterministic streaming classifier are implemented. Validated integer encoding is implemented. Validated Digit-Probe analysis is implemented. Reporting and the command-line interface remain
-deferred.
+The strict journal JSON Lines parser, privacy-safe normalizer,
+deterministic streaming classifier, validated integer encoding, validated
+Digit-Probe analysis, and reproducible per-window analysis manifests are
+implemented. Window comparison, reporting, and the command-line interface
+remain deferred.
 
 ## Purpose
 
@@ -37,3 +39,7 @@ report.
 The distributive dependency is pinned to a verified Digit-Probe Git
 commit. During local development, the local Digit-Probe repository may
 replace it through an editable installation.
+
+Analysis manifests derive the reproducible Digit-Probe commit from the
+installed System Log Dynamics dependency metadata, not from the currently
+imported editable checkout.
