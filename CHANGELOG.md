@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Completed Experiment 001 with two deterministic, privacy-safe synthetic
+  windows and an exact public-API contract from JSON Lines bytes through
+  structured window comparison.
+- Added stable routine-versus-boot/error/burst fixture hashes, symbol
+  sequences, classification metadata, temporal summaries, and descriptive
+  comparison expectations.
+- Added wheel data files for the changelog, experiment documentation, and
+  synthetic JSON Lines fixtures.
+
 - Added typed, deterministic, immutable comparisons for completed analysis
   windows, including manifest compatibility, Digit-Probe metrics, and temporal
   aggregates.
