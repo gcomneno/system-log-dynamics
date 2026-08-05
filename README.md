@@ -8,11 +8,11 @@ analyzing them through the public Python API of Digit-Probe.
 
 The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
-Digit-Probe analysis, reproducible per-window analysis manifests, and
-deterministic immutable temporal burst summaries are implemented. A typed,
-immutable comparison layer is available for two completed compatible windows.
-Experiment 001 now exercises that complete pipeline with two reproducible
-synthetic windows. Reporting and the command-line interface remain deferred.
+Digit-Probe analysis, reproducible per-window analysis manifests, deterministic
+immutable temporal burst summaries, typed structured comparison, and
+deterministic Markdown reporting are implemented. Experiment 001 exercises the
+complete public pipeline with two reproducible synthetic windows. The
+file-based command-line interface remains deferred.
 
 ## Purpose
 
@@ -34,7 +34,7 @@ committed.
 
 Linux journal export → normalization → anonymization → classification →
 integer symbols → Digit-Probe analysis → structured window comparison →
-future presentation.
+deterministic Markdown reporting.
 
 ## Experiment 001
 
@@ -49,7 +49,23 @@ summaries, and selected comparison values are executable contracts.
 
 See
 `docs/experiments/001-routine-vs-boot-error-burst.md`
-for the completed specification and interpretation limits.
+for the completed specification, interpretation limits, and exact generated
+report contracts.
+
+The reporting API exposes:
+
+```python
+render_analysis_window_markdown(window)
+build_window_comparison_report(left, right)
+render_window_comparison_markdown(report)
+```
+
+Reviewed golden outputs are stored in:
+
+```text
+fixtures/reports/experiment-001-routine.md
+fixtures/reports/experiment-001-comparison.md
+```
 
 ## Development dependency
 

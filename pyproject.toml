@@ -33,8 +33,10 @@ where = ["src"]
 
 [tool.setuptools.data-files]
 "share/system-log-dynamics" = ["CHANGELOG.md"]
+"share/system-log-dynamics/docs/decisions" = ["docs/decisions/*.md"]
 "share/system-log-dynamics/docs/experiments" = ["docs/experiments/*.md"]
 "share/system-log-dynamics/fixtures/synthetic" = ["fixtures/synthetic/*.jsonl"]
+"share/system-log-dynamics/fixtures/reports" = ["fixtures/reports/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

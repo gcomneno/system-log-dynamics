@@ -236,3 +236,49 @@ Markdown report rendering, command-line presentation, live journal
 collection, automatic labels, threshold policy, and security interpretation
 remain outside this issue and belong to later reporting or orchestration
 work.
+
+## Deterministic Markdown reports
+
+Issue #14 adds pure presentation functions over the validated structured
+products of this experiment:
+
+```python
+from system_log_dynamics.reporting import (
+    build_window_comparison_report,
+    render_analysis_window_markdown,
+    render_window_comparison_markdown,
+)
+```
+
+The per-window renderer consumes one `AnalysisWindow`. The comparison renderer
+consumes a `WindowComparisonReport`, which retains independent validated
+snapshots of both windows together with their exact structured comparison.
+
+The renderers perform no file access, package-metadata lookup, Git inspection,
+network access, metric recalculation, compatibility decision, or interpretive
+inference.
+
+Reviewed golden contracts are stored at:
+
+```text
+fixtures/reports/experiment-001-routine.md
+fixtures/reports/experiment-001-comparison.md
+```
+
+Their exact UTF-8 contracts are:
+
+```text
+experiment-001-routine.md
+  bytes:   3172
+  SHA-256: f4c8892f74090da5ae37c234fca9d27fcba02548dcc79fceb220effff5888ad5
+
+experiment-001-comparison.md
+  bytes:   4872
+  SHA-256: 9effbd6986663dbae37ff1e450406ad9842843f74e25e834291c8aae9ca68ba5
+```
+
+All comparison deltas use `right - left`. Missing, NaN, positive infinity,
+negative infinity, and not-computable values remain distinct. The reports are
+descriptive and representation-dependent; they do not establish anomaly,
+compromise, malicious behaviour, randomness, causality, intent, or production
+behaviour.
