@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added deterministic Markdown rendering for validated analysis windows and
+  structured two-window comparisons.
+- Added an immutable `WindowComparisonReport` presentation boundary retaining
+  both complete window manifests and their exact `right - left` comparison.
+- Added explicit numeric formatting, Markdown escaping, unavailable-value
+  representation, stable table ordering, and final-newline policies.
+- Added exact golden Markdown contracts for the Experiment 001 routine window
+  and complete routine-versus-boot/error/burst comparison.
+- Added report fixtures to source-distribution and wheel data-file contracts.
+
 - Completed Experiment 001 with two deterministic, privacy-safe synthetic
   windows and an exact public-API contract from JSON Lines bytes through
   structured window comparison.
