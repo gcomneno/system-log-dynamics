@@ -10,9 +10,9 @@ The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
 Digit-Probe analysis, reproducible per-window analysis manifests, and
 deterministic immutable temporal burst summaries are implemented. A typed,
-immutable comparison layer is available for two completed compatible windows;
-it reports descriptive deltas without rendering or inference. Reporting and
-the command-line interface remain deferred.
+immutable comparison layer is available for two completed compatible windows.
+Experiment 001 now exercises that complete pipeline with two reproducible
+synthetic windows. Reporting and the command-line interface remain deferred.
 
 ## Purpose
 
@@ -33,8 +33,23 @@ committed.
 ## Initial pipeline
 
 Linux journal export → normalization → anonymization → classification →
-integer symbols → Digit-Probe analysis → window comparison → Markdown
-report.
+integer symbols → Digit-Probe analysis → structured window comparison →
+future presentation.
+
+## Experiment 001
+
+Experiment 001 compares a low-intensity routine synthetic window with a
+synthetic window containing boot boundaries, service lifecycle activity,
+warnings, errors, authentication failures, and a concentrated event burst.
+
+Both 24-event fixtures pass through the public pipeline from exact JSON Lines
+bytes to `WindowComparison`. Their byte lengths, SHA-256 digests, normalized
+coordinates, classification metadata, symbol sequences, manifests, temporal
+summaries, and selected comparison values are executable contracts.
+
+See
+`docs/experiments/001-routine-vs-boot-error-burst.md`
+for the completed specification and interpretation limits.
 
 ## Development dependency
 
