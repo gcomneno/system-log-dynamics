@@ -6,6 +6,12 @@ analyzing them through the public Python API of Digit-Probe.
 
 ## Status
 
+Version 0.1.0 is the first public milestone. It packages the completed
+deterministic file-based pipeline, Experiment 001, structured comparisons,
+Markdown reporting, installed analyze and compare commands, and bounded local
+journal acquisition. See the [0.1.0 release notes](docs/releases/0.1.0.md)
+and the [release process](docs/release-process.md).
+
 The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
 Digit-Probe analysis, reproducible per-window analysis manifests, deterministic
@@ -26,6 +32,11 @@ predictability, and changes between temporal windows.
 It does not attempt to certify randomness, security, compromise, user
 behaviour, or administrator intent.
 
+The output is descriptive and depends on the accepted journal fields,
+normalization, classifier, encoding, configuration, and selected windows. It
+does not establish that a system is random, compromised, malicious, safe, or
+operated with any particular user or administrator intent.
+
 ## Data policy
 
 The public repository contains only synthetic or carefully anonymized
@@ -33,11 +44,46 @@ fixtures. Real journal exports, usernames, hostnames, addresses, tokens,
 identifiers, private paths, and other sensitive material must not be
 committed.
 
+Local collection writes exact journal bytes and performs no redaction. Treat a
+collected file as private: keep it outside a repository, review it before any
+sharing, and do not use it as a public fixture.
+
 ## Initial pipeline
 
 optional bounded local acquisition → JSON Lines file → normalization →
 classification → integer symbols → Digit-Probe analysis → structured window
 comparison → deterministic Markdown reporting.
+
+## Installation and quick start
+
+The 0.1.0 distribution depends on an immutable Digit-Probe Git commit, so
+installation requires Git until a separately reviewed immutable Digit-Probe
+release is adopted. To install a checked-out release candidate:
+
+```console
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install .
+```
+
+When an artifact is deliberately published, install that exact published
+artifact through the selected release channel; publication is optional and is
+not implied by a Git tag.
+
+From the repository root, reproduce the routine synthetic report without
+reading a live journal:
+
+```console
+.venv/bin/system-log-dynamics analyze \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    --window-id experiment-001-routine \
+    --output /tmp/experiment-001-routine.md
+
+cmp fixtures/reports/experiment-001-routine.md /tmp/experiment-001-routine.md
+```
+
+The command reads only the named synthetic file and produces deterministic
+Markdown. Remove the temporary report when it is no longer needed.
 
 ## Experiment 001
 
@@ -138,6 +184,22 @@ Controlled outcomes use stable process exit codes:
 Expected user and data errors are written concisely to standard error without
 a traceback.
 
+### CLI overview
+
+`analyze` turns one explicit JSON Lines file into a deterministic Markdown
+window report. `compare` turns two explicit JSON Lines files into a
+deterministic structured comparison report. Neither command invokes
+`journalctl`. `collect` is the separate, opt-in local acquisition boundary and
+does not analyze its output. Run the installed help without accessing a
+journal:
+
+```console
+system-log-dynamics --help
+system-log-dynamics analyze --help
+system-log-dynamics compare --help
+system-log-dynamics collect --help
+```
+
 ## Optional local journal acquisition
 
 Collection is deliberately separate from analysis:
@@ -206,6 +268,33 @@ resulting file may later be passed explicitly to `analyze` or `compare`.
 See
 `docs/decisions/0015-privacy-safe-local-journal-acquisition.md`
 for the complete security, privacy, file-safety, and provenance policy.
+
+## Architecture decisions
+
+The accepted boundaries and their rationale are indexed in
+[docs/decisions/README.md](docs/decisions/README.md). In particular,
+Decision 0016 records why 0.1.0 is the first public milestone and why the
+Digit-Probe commit pin remains in place.
+
+## Development
+
+Install the development tools into an isolated environment, then run the
+same checks required before a release candidate:
+
+```console
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e ".[dev]"
+.venv/bin/ruff format --check .
+.venv/bin/ruff check .
+.venv/bin/pytest -q
+.venv/bin/python -m compileall -q src tests
+```
+
+For the artifact, isolated-install, and release checks, follow the executable
+commands in [docs/release-process.md](docs/release-process.md). All automated
+collection checks must replace `journalctl` with a synthetic executable; do
+not run validation against the host journal.
 
 ## Development dependency
 
