@@ -13,6 +13,10 @@ from system_log_dynamics.comparison import (
     WindowComparison,
     compare_analysis_windows,
 )
+from system_log_dynamics.coverage import (
+    build_taxonomy_coverage,
+    compare_taxonomy_coverage,
+)
 from system_log_dynamics.encoding import decode_event_symbol
 
 __all__ = [
@@ -352,6 +356,57 @@ def render_analysis_window_markdown(window: AnalysisWindow) -> str:
     temporal = window.temporal
     window_id = _format_window_id(manifest.window_id)
     plain_language_summary = _render_plain_language_summary(window)
+    taxonomy_coverage = build_taxonomy_coverage(result)
+
+    taxonomy_coverage_table = _markdown_table(
+        ("Metric", "Value"),
+        (
+            ("Status", taxonomy_coverage.status.value),
+            (
+                "Named event count",
+                str(taxonomy_coverage.named_event_count),
+            ),
+            (
+                "Named event proportion",
+                _format_percentage(taxonomy_coverage.named_event_proportion),
+            ),
+            (
+                "Other event count",
+                str(taxonomy_coverage.other_event_count),
+            ),
+            (
+                "Other event proportion",
+                _format_percentage(taxonomy_coverage.other_event_proportion),
+            ),
+            (
+                "Represented named category count",
+                str(taxonomy_coverage.represented_named_category_count),
+            ),
+            (
+                "Absent named category count",
+                str(taxonomy_coverage.absent_named_category_count),
+            ),
+            (
+                "Represented named event types",
+                _format_event_type_list(taxonomy_coverage.represented_named_symbols),
+            ),
+            (
+                "Absent named event types",
+                _format_event_type_list(taxonomy_coverage.absent_named_symbols),
+            ),
+        ),
+    )
+
+    taxonomy_coverage_section = (
+        taxonomy_coverage_table
+        + "\n\n"
+        + (
+            "Taxonomy coverage describes how many events map to "
+            "named taxonomy categories rather than `other`. "
+            "It is not a classifier-quality score, anomaly score, "
+            "threat score, or security conclusion."
+        )
+    )
 
     provenance = _markdown_table(
         ("Field", "Value"),
@@ -502,6 +557,8 @@ def render_analysis_window_markdown(window: AnalysisWindow) -> str:
         ),
         "## Plain-language summary",
         plain_language_summary,
+        "## Taxonomy coverage",
+        taxonomy_coverage_section,
         "## Provenance",
         provenance,
         "## Analysis summary",
@@ -523,9 +580,10 @@ def render_analysis_window_markdown(window: AnalysisWindow) -> str:
         "## Methodology and reproducibility",
         (
             "This report was rendered exclusively from a validated "
-            "`AnalysisWindow`. It performs no file access, metadata lookup, "
-            "Git inspection, network access, metric recalculation, or "
-            "interpretive inference."
+            "`AnalysisWindow`. Taxonomy coverage is derived deterministically "
+            "from its validated count snapshot. Rendering performs no file "
+            "access, metadata lookup, Git inspection, network access, "
+            "classifier execution, or interpretive inference."
         ),
     )
 
@@ -589,6 +647,84 @@ def render_window_comparison_markdown(
 
     left_id = _format_window_id(comparison.left_window_id)
     right_id = _format_window_id(comparison.right_window_id)
+    coverage = compare_taxonomy_coverage(
+        left.result,
+        right.result,
+    )
+
+    coverage_table = _markdown_table(
+        (
+            "Metric",
+            "Left",
+            "Right",
+            "Delta (right - left)",
+        ),
+        (
+            (
+                "Status",
+                coverage.left.status.value,
+                coverage.right.status.value,
+                "not applicable",
+            ),
+            (
+                "Named event count",
+                str(coverage.left.named_event_count),
+                str(coverage.right.named_event_count),
+                str(coverage.named_event_count_delta),
+            ),
+            (
+                "Named event proportion",
+                _format_percentage(coverage.left.named_event_proportion),
+                _format_percentage(coverage.right.named_event_proportion),
+                _format_percentage(coverage.named_event_proportion_delta),
+            ),
+            (
+                "Other event count",
+                str(coverage.left.other_event_count),
+                str(coverage.right.other_event_count),
+                str(coverage.other_event_count_delta),
+            ),
+            (
+                "Other event proportion",
+                _format_percentage(coverage.left.other_event_proportion),
+                _format_percentage(coverage.right.other_event_proportion),
+                _format_percentage(coverage.other_event_proportion_delta),
+            ),
+            (
+                "Represented named category count",
+                str(coverage.left.represented_named_category_count),
+                str(coverage.right.represented_named_category_count),
+                str(coverage.represented_named_category_count_delta),
+            ),
+        ),
+    )
+
+    coverage_changes = _markdown_table(
+        ("Change", "Event types"),
+        (
+            (
+                "Newly represented named event types",
+                _format_event_type_list(coverage.newly_represented_named_symbols),
+            ),
+            (
+                "Newly absent named event types",
+                _format_event_type_list(coverage.newly_absent_named_symbols),
+            ),
+        ),
+    )
+
+    coverage_section = (
+        coverage_table
+        + "\n\n"
+        + coverage_changes
+        + "\n\n"
+        + (
+            "Coverage differences describe changes in taxonomy "
+            "representation only. They are not evidence of "
+            "classifier quality, anomaly, threat, compromise, "
+            "causality, safety, or intent."
+        )
+    )
 
     compatibility_table = _markdown_table(
         ("Field", "Value"),
@@ -811,6 +947,8 @@ def render_window_comparison_markdown(
         compatibility_table,
         "## Window manifests",
         manifest_table,
+        "## Taxonomy coverage comparison",
+        coverage_section,
         "## Event counts and proportions",
         counts,
         "## Runs and compression",
@@ -828,9 +966,11 @@ def render_window_comparison_markdown(
         "## Methodology and reproducibility",
         (
             "This report was rendered exclusively from a validated "
-            "`WindowComparisonReport`. It performs no file access, metadata "
-            "lookup, Git inspection, network access, metric recalculation, "
-            "compatibility decision, or interpretive inference."
+            "`WindowComparisonReport`. Taxonomy coverage differences are "
+            "derived deterministically from the validated count snapshots. "
+            "Rendering performs no file access, metadata lookup, Git "
+            "inspection, network access, classifier execution, compatibility "
+            "decision, or interpretive inference."
         ),
     )
 

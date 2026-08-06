@@ -29,6 +29,24 @@ Results are descriptive and representation-dependent. All deltas use `right - le
 | Project version | 0\.1\.0 | 0\.1\.0 |
 | Sample size | 24 | 24 |
 
+## Taxonomy coverage comparison
+
+| Metric | Left | Right | Delta (right - left) |
+| --- | --- | --- | --- |
+| Status | mixed | mixed | not applicable |
+| Named event count | 15 | 20 | 5 |
+| Named event proportion | 62.5% | 83.33% | 20.83% |
+| Other event count | 9 | 4 | -5 |
+| Other event proportion | 37.5% | 16.67% | -20.83% |
+| Represented named category count | 5 | 7 | 2 |
+
+| Change | Event types |
+| --- | --- |
+| Newly represented named event types | boot\_boundary, authentication\_failure, and error |
+| Newly absent named event types | authentication\_success |
+
+Coverage differences describe changes in taxonomy representation only. They are not evidence of classifier quality, anomaly, threat, compromise, causality, safety, or intent.
+
 ## Event counts and proportions
 
 | Symbol | Event type | Left count | Right count | Delta | Left proportion | Right proportion | Delta proportion |
@@ -107,4 +125,4 @@ Observed count differences occur for these event types: boot_boundary, service_s
 
 ## Methodology and reproducibility
 
-This report was rendered exclusively from a validated `WindowComparisonReport`. It performs no file access, metadata lookup, Git inspection, network access, metric recalculation, compatibility decision, or interpretive inference.
+This report was rendered exclusively from a validated `WindowComparisonReport`. Taxonomy coverage differences are derived deterministically from the validated count snapshots. Rendering performs no file access, metadata lookup, Git inspection, network access, classifier execution, compatibility decision, or interpretive inference.

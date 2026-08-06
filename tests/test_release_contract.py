@@ -42,10 +42,24 @@ def test_release_notes_and_changelog_record_the_version_decision() -> None:
     release_notes = (ROOT / "docs/releases/0.1.0.md").read_text(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert changelog.startswith(
-        "# Changelog\n\nAll notable changes to this project will be documented "
-        "in this file.\n\n## Unreleased\n\n## [0.1.0] - 2026-08-06\n"
+    changelog_header = (
+        "# Changelog\n\n"
+        "All notable changes to this project will be documented "
+        "in this file.\n\n"
+        "## Unreleased\n"
     )
+    release_heading = f"\n## [{RELEASE_VERSION}] - {RELEASE_DATE}\n"
+
+    assert changelog.startswith(changelog_header)
+    assert changelog.count(release_heading) == 1
+
+    unreleased_section, released_section = changelog.split(
+        release_heading,
+        maxsplit=1,
+    )
+
+    assert unreleased_section.startswith(changelog_header)
+    assert released_section.startswith("\n### Added\n")
     assert RELEASE_VERSION in release_notes
     assert RELEASE_DATE in release_notes
     assert "no existing Git\ntag" in release_notes
