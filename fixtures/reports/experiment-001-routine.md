@@ -2,6 +2,15 @@
 
 Results are descriptive and representation-dependent. They are not proof of anomaly, compromise, malicious behaviour, randomness, causality, or intent. Unavailable metrics remain unavailable rather than being coerced to zero.
 
+## Plain-language summary
+
+- This window contains 24 events across 6 of 9 configured event categories.
+- The most frequent category is other with 9 events (37.5%).
+- Absent categories: boot\_boundary, authentication\_failure, and error.
+- The category counts are unevenly distributed in this window.
+- The encoded sequence has a runs z-score of 1.22817 and a compression ratio of 0.75; these values describe ordering and repetition only.
+- These observations are descriptive and are not proof of anomaly, compromise, malicious behaviour, randomness, causality, safety, or intent.
+
 ## Provenance
 
 | Field | Value |

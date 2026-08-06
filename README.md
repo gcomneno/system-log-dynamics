@@ -109,6 +109,13 @@ build_window_comparison_report(left, right)
 render_window_comparison_markdown(report)
 ```
 
+Each single-window report begins with a deterministic plain-language
+summary. It states the sample size, represented and absent categories,
+dominant categories, the `other` proportion, and the existing runs and
+compression values. The summary is descriptive rather than diagnostic: it
+does not infer anomaly, compromise, malicious behaviour, safety, causality,
+randomness, or intent.
+
 Reviewed golden outputs are stored in:
 
 ```text
