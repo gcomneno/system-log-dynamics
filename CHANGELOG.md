@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added the explicit `system-log-dynamics collect OUTPUT.jsonl` boundary for
+  bounded local Linux journal acquisition.
+- Added shell-free `journalctl` execution with reviewed boot, time, unit,
+  scope, event-count, and timeout selectors.
+- Added privacy-minimized JSON Lines export, controlled acquisition failures,
+  and diagnostics that never echo collected contents.
+- Added restrictive `0600` temporary files, atomic publication, overwrite
+  control, symbolic-link refusal, and default rejection of Git-worktree
+  destinations.
+- Added synthetic acquisition tests that never access or commit a real
+  journal export.
+- Added Decision 0015 documenting local-only collection, privacy, file safety,
+  provenance, and the strict separation from analysis.
+
 - Added the installed `system-log-dynamics analyze` and
   `system-log-dynamics compare` commands as thin adapters over the existing
   public pipeline.
