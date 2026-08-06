@@ -17,6 +17,9 @@ dependencies = [
     "packaging>=24",
 ]
 
+[project.scripts]
+system-log-dynamics = "system_log_dynamics.cli:main"
+
 [project.urls]
 Repository = "https://github.com/gcomneno/system-log-dynamics"
 Issues = "https://github.com/gcomneno/system-log-dynamics/issues"

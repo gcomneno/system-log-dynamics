@@ -228,14 +228,54 @@ It does not establish:
 The runs p-values and all other metrics remain descriptive outputs of this
 controlled experiment.
 
-## Presentation boundary
+## Command-line reproduction
 
-Experiment 001 produces structured Python values only.
+The installed file-based CLI composes the same public APIs used by the
+executable Python contract. It performs no live journal access and derives
+manifest hashes from the exact bytes read from each input file.
 
-Markdown report rendering, command-line presentation, live journal
-collection, automatic labels, threshold policy, and security interpretation
-remain outside this issue and belong to later reporting or orchestration
-work.
+The routine report can be regenerated with:
+
+```console
+system-log-dynamics analyze \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    --window-id experiment-001-routine \
+    --burst-threshold-us 100000 \
+    --schur-capacity 5000 \
+    --output /tmp/experiment-001-routine.md
+```
+
+The comparison report can be regenerated with:
+
+```console
+system-log-dynamics compare \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    fixtures/synthetic/experiment-001-boot-error-burst.jsonl \
+    --left-window-id experiment-001-routine \
+    --right-window-id experiment-001-boot-error-burst \
+    --burst-threshold-us 100000 \
+    --schur-capacity 5000 \
+    --output /tmp/experiment-001-comparison.md
+```
+
+The generated files can be checked against the reviewed contracts:
+
+```console
+cmp \
+    fixtures/reports/experiment-001-routine.md \
+    /tmp/experiment-001-routine.md
+
+cmp \
+    fixtures/reports/experiment-001-comparison.md \
+    /tmp/experiment-001-comparison.md
+```
+
+Existing destinations are refused unless `--overwrite` is supplied. The
+explicit threshold and Schur capacity above match the stable experiment
+contract.
+
+Live journal collection, automatic labels, anomaly thresholds, and security
+interpretation remain outside Experiment 001 and the file-based CLI.
 
 ## Deterministic Markdown reports
 

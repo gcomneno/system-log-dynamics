@@ -9,10 +9,13 @@ analyzing them through the public Python API of Digit-Probe.
 The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
 Digit-Probe analysis, reproducible per-window analysis manifests, deterministic
-immutable temporal burst summaries, typed structured comparison, and
-deterministic Markdown reporting are implemented. Experiment 001 exercises the
-complete public pipeline with two reproducible synthetic windows. The
-file-based command-line interface remains deferred.
+immutable temporal burst summaries, typed structured comparison,
+deterministic Markdown reporting, and file-based command-line interface are
+implemented.
+
+Experiment 001 exercises the complete public pipeline with two reproducible
+synthetic windows through both the Python API and the installed console
+script.
 
 ## Purpose
 
@@ -66,6 +69,73 @@ Reviewed golden outputs are stored in:
 fixtures/reports/experiment-001-routine.md
 fixtures/reports/experiment-001-comparison.md
 ```
+
+## Command-line interface
+
+After installation, the file-based pipeline is available through:
+
+```text
+system-log-dynamics analyze INPUT.jsonl
+system-log-dynamics compare LEFT.jsonl RIGHT.jsonl
+```
+
+Both commands:
+
+- read each input as exact immutable bytes;
+- decode JSON Lines with strict UTF-8;
+- use only the existing public analysis and reporting pipeline;
+- write deterministic UTF-8 Markdown to standard output by default;
+- never access the live journal, Git state, environment metadata, or the
+  network;
+- never modify an input file.
+
+A single window can be analyzed with an explicit stable identifier:
+
+```console
+system-log-dynamics analyze \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    --window-id experiment-001-routine
+```
+
+Two windows can be compared with independent identifiers:
+
+```console
+system-log-dynamics compare \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    fixtures/synthetic/experiment-001-boot-error-burst.jsonl \
+    --left-window-id experiment-001-routine \
+    --right-window-id experiment-001-boot-error-burst
+```
+
+Common options are:
+
+- `--burst-threshold-us MICROSECONDS`, a positive temporal threshold with
+  default `100000`;
+- `--schur-capacity COUNT`, a positive Digit-Probe Schur capacity with
+  default `5000`;
+- `--output PATH`, which writes the complete report atomically;
+- `--overwrite`, which requires `--output` and permits atomic replacement
+  of an existing destination.
+
+Without `--overwrite`, an existing output path is refused. Even with
+`--overwrite`, an output path resolving to either input file is rejected.
+Temporary output files are created in the destination directory and removed
+after failures.
+
+Controlled outcomes use stable process exit codes:
+
+| Code | Meaning |
+| ---: | --- |
+| 0 | Success |
+| 2 | Command-line usage error |
+| 3 | Input file access error |
+| 4 | UTF-8 decoding error |
+| 5 | Journal parsing or normalization error |
+| 6 | Classification, analysis, manifest, temporal, comparison, or reporting contract error |
+| 7 | Standard-output or output-file error |
+
+Expected user and data errors are written concisely to standard error without
+a traceback.
 
 ## Development dependency
 
