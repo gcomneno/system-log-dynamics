@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Added deterministic taxonomy-coverage models and Markdown reporting for
+  named versus `other` events, represented and absent named categories, and
+  exact `right - left` coverage comparisons.
+- Added synthetic Linux-vocabulary review evidence covering SSH outcomes,
+  `sudo` session boundaries, service restart representation, service failure,
+  authorization denials, repeated denials, and false-positive resistance.
+- Added Decision 0017 retaining taxonomy version 1 and documenting that
+  coverage is descriptive rather than a classifier-quality or security score.
+
+
 ## [0.1.0] - 2026-08-06
 
 ### Added

@@ -11,6 +11,22 @@ Results are descriptive and representation-dependent. They are not proof of anom
 - The encoded sequence has a runs z-score of 1.22817 and a compression ratio of 0.75; these values describe ordering and repetition only.
 - These observations are descriptive and are not proof of anomaly, compromise, malicious behaviour, randomness, causality, safety, or intent.
 
+## Taxonomy coverage
+
+| Metric | Value |
+| --- | --- |
+| Status | mixed |
+| Named event count | 15 |
+| Named event proportion | 62.5% |
+| Other event count | 9 |
+| Other event proportion | 37.5% |
+| Represented named category count | 5 |
+| Absent named category count | 3 |
+| Represented named event types | service\_started, service\_stopped, authentication\_success, session\_boundary, and warning |
+| Absent named event types | boot\_boundary, authentication\_failure, and error |
+
+Taxonomy coverage describes how many events map to named taxonomy categories rather than `other`. It is not a classifier-quality score, anomaly score, threat score, or security conclusion.
+
 ## Provenance
 
 | Field | Value |
@@ -124,4 +140,4 @@ Results are descriptive and representation-dependent. They are not proof of anom
 
 ## Methodology and reproducibility
 
-This report was rendered exclusively from a validated `AnalysisWindow`. It performs no file access, metadata lookup, Git inspection, network access, metric recalculation, or interpretive inference.
+This report was rendered exclusively from a validated `AnalysisWindow`. Taxonomy coverage is derived deterministically from its validated count snapshot. Rendering performs no file access, metadata lookup, Git inspection, network access, classifier execution, or interpretive inference.
