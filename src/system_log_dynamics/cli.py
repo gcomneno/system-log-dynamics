@@ -1,4 +1,4 @@
-"""Deterministic file-based command-line orchestration."""
+"""Deterministic local collection and file-based orchestration."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from typing import NoReturn
 
 from digit_probe import AnalysisConfig
 
+from . import collection
 from .analysis import analyze_classified_events
 from .classification import iter_classified_events
 from .comparison import AnalysisWindow
@@ -47,6 +48,7 @@ class ExitCode(IntEnum):
     JOURNAL = 5
     PIPELINE = 6
     OUTPUT = 7
+    COLLECTION = 8
 
 
 class _CliFailure(Exception):
@@ -84,8 +86,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = _ArgumentParser(
         prog="system-log-dynamics",
         description=(
-            "Analyze and compare Linux journal JSON Lines files "
-            "without accessing the live journal."
+            "Collect, analyze, and compare Linux journal JSON Lines files "
+            "through explicit local boundaries."
         ),
     )
 
@@ -132,6 +134,85 @@ def _build_parser() -> argparse.ArgumentParser:
         help="optional stable identifier for the right window",
     )
     _add_common_arguments(compare)
+
+    collect = subparsers.add_parser(
+        "collect",
+        help="collect one bounded local journal window",
+    )
+    collect.add_argument(
+        "output",
+        type=Path,
+        help="explicit local JSON Lines destination",
+    )
+    collect.add_argument(
+        "--boot",
+        type=int,
+        metavar="OFFSET",
+        help="collect exactly one boot, such as 0 or -1",
+    )
+    collect.add_argument(
+        "--since",
+        help="journalctl lower time bound; requires --until",
+    )
+    collect.add_argument(
+        "--until",
+        help="journalctl upper time bound; requires --since",
+    )
+    collect.add_argument(
+        "--system-unit",
+        action="append",
+        default=[],
+        metavar="UNIT",
+        help="limit collection to one system unit; repeatable",
+    )
+    collect.add_argument(
+        "--user-unit",
+        action="append",
+        default=[],
+        metavar="UNIT",
+        help="limit collection to one user unit; repeatable",
+    )
+    scope = collect.add_mutually_exclusive_group()
+    scope.add_argument(
+        "--system",
+        dest="scope",
+        action="store_const",
+        const="system",
+        help="read the system journal",
+    )
+    scope.add_argument(
+        "--user",
+        dest="scope",
+        action="store_const",
+        const="user",
+        help="read the current user journal",
+    )
+    collect.add_argument(
+        "--max-events",
+        type=_positive_integer,
+        metavar="COUNT",
+        help="maximum number of exported event lines",
+    )
+    collect.add_argument(
+        "--timeout-seconds",
+        type=float,
+        default=30.0,
+        metavar="SECONDS",
+        help="positive journalctl timeout (default: 30)",
+    )
+    collect.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="replace an existing regular output file atomically",
+    )
+    collect.add_argument(
+        "--allow-repository-output",
+        action="store_true",
+        help=(
+            "override the privacy guard for output inside a Git "
+            "worktree after explicit review"
+        ),
+    )
 
     return parser
 
@@ -423,6 +504,59 @@ def _run_compare(arguments: argparse.Namespace) -> None:
     )
 
 
+def _run_collect(arguments: argparse.Namespace) -> None:
+    try:
+        selection = collection.JournalSelection(
+            boot=arguments.boot,
+            since=arguments.since,
+            until=arguments.until,
+            system_units=tuple(arguments.system_unit),
+            user_units=tuple(arguments.user_unit),
+            max_events=arguments.max_events,
+            scope=arguments.scope,
+        )
+
+        repository_root = collection.detect_repository_root(arguments.output)
+        if repository_root is not None and arguments.allow_repository_output:
+            sys.stderr.write(
+                "warning: journal data may contain sensitive "
+                "identifiers and message contents; repository "
+                "output was explicitly allowed\n"
+            )
+            sys.stderr.flush()
+
+        result = collection.collect_journal(
+            arguments.output,
+            selection,
+            overwrite=arguments.overwrite,
+            allow_repository_output=(arguments.allow_repository_output),
+            timeout_seconds=arguments.timeout_seconds,
+        )
+    except collection.CollectionError as error:
+        if error.kind is collection.CollectionErrorKind.SELECTION:
+            exit_code = ExitCode.USAGE
+        elif error.kind is collection.CollectionErrorKind.UTF8:
+            exit_code = ExitCode.UTF8
+        elif error.kind in {
+            collection.CollectionErrorKind.OUTPUT,
+            collection.CollectionErrorKind.REPOSITORY,
+        }:
+            exit_code = ExitCode.OUTPUT
+        else:
+            exit_code = ExitCode.COLLECTION
+
+        raise _CliFailure(
+            exit_code,
+            error.detail,
+        ) from error
+
+    _write_stdout(
+        f"collected {result.event_line_count} event lines "
+        f"and {result.byte_count} bytes to "
+        f"{result.output_path}\n"
+    )
+
+
 def main(
     argv: Sequence[str] | None = None,
 ) -> int:
@@ -443,6 +577,8 @@ def main(
             _run_analyze(arguments)
         elif arguments.command == "compare":
             _run_compare(arguments)
+        elif arguments.command == "collect":
+            _run_collect(arguments)
         else:
             raise _CliFailure(
                 ExitCode.USAGE,
