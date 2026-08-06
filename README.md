@@ -10,8 +10,8 @@ The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
 Digit-Probe analysis, reproducible per-window analysis manifests, deterministic
 immutable temporal burst summaries, typed structured comparison,
-deterministic Markdown reporting, and file-based command-line interface are
-implemented.
+deterministic Markdown reporting, file-based command-line analysis, and
+privacy-safe bounded local journal acquisition are implemented.
 
 Experiment 001 exercises the complete public pipeline with two reproducible
 synthetic windows through both the Python API and the installed console
@@ -35,9 +35,9 @@ committed.
 
 ## Initial pipeline
 
-Linux journal export → normalization → anonymization → classification →
-integer symbols → Digit-Probe analysis → structured window comparison →
-deterministic Markdown reporting.
+optional bounded local acquisition → JSON Lines file → normalization →
+classification → integer symbols → Digit-Probe analysis → structured window
+comparison → deterministic Markdown reporting.
 
 ## Experiment 001
 
@@ -132,10 +132,80 @@ Controlled outcomes use stable process exit codes:
 | 4 | UTF-8 decoding error |
 | 5 | Journal parsing or normalization error |
 | 6 | Classification, analysis, manifest, temporal, comparison, or reporting contract error |
-| 7 | Standard-output or output-file error |
+| 7 | Standard-output, output-file, or repository-path error |
+| 8 | Local journal acquisition process error |
 
 Expected user and data errors are written concisely to standard error without
 a traceback.
+
+## Optional local journal acquisition
+
+Collection is deliberately separate from analysis:
+
+```text
+system-log-dynamics collect OUTPUT.jsonl [selection options]
+```
+
+The output path is mandatory, and collection must be bounded by at least one
+of:
+
+- `--boot OFFSET`, selecting exactly one boot;
+- `--max-events COUNT`, limiting the exported event count;
+- both `--since VALUE` and `--until VALUE`.
+
+Optional repeatable filters are `--system-unit UNIT` and
+`--user-unit UNIT`. Journal scope can be selected with either `--system` or
+`--user`.
+
+For example, collect at most 5,000 events from the previous boot into a private
+directory outside the repository:
+
+```console
+mkdir -p "$HOME/.local/share/system-log-dynamics"
+
+system-log-dynamics collect \
+    "$HOME/.local/share/system-log-dynamics/previous-boot.jsonl" \
+    --boot=-1 \
+    --max-events 5000
+```
+
+A bounded service window can be collected with:
+
+```console
+system-log-dynamics collect \
+    "$HOME/.local/share/system-log-dynamics/sshd-window.jsonl" \
+    --since "2026-08-06 09:00:00" \
+    --until "2026-08-06 09:15:00" \
+    --system-unit sshd.service \
+    --max-events 1000
+```
+
+Journal data may contain usernames, hostnames, addresses, paths, tokens,
+identifiers, and message contents. Collected files must be treated as private.
+
+The collector:
+
+- invokes `journalctl` without a shell;
+- requests only fields consumed by the existing parser;
+- never analyzes or transforms collected events;
+- never sends data to the network;
+- never performs Git operations;
+- refuses output inside a Git worktree by default;
+- refuses symbolic-link output paths;
+- writes atomically with restrictive `0600` permissions;
+- never prints collected contents in normal output or diagnostics.
+
+`--allow-repository-output` overrides the Git-worktree guard only after an
+explicit warning. It does not stage, commit, or otherwise publish the file.
+
+`--overwrite` permits atomic replacement of an existing regular destination.
+
+Success reports only the destination, byte count, and event-line count. The
+resulting file may later be passed explicitly to `analyze` or `compare`.
+
+See
+`docs/decisions/0015-privacy-safe-local-journal-acquisition.md`
+for the complete security, privacy, file-safety, and provenance policy.
 
 ## Development dependency
 
