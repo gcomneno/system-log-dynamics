@@ -424,7 +424,7 @@ def test_analysis_window_markdown_has_exact_compact_contract() -> None:
     )
     assert rendered.endswith("interpretive inference.\n")
     assert rendered.count("\n# ") == 0
-    assert rendered.count("\n## ") == 11
+    assert rendered.count("\n## ") == 12
     assert rendered.endswith("\n")
     assert not rendered.endswith("\n\n")
 
@@ -541,6 +541,79 @@ def test_plain_language_summary_orders_tied_dominant_categories() -> None:
         "each with 2 events (40%)."
     ) in first
     assert first.index("service\\_started") < first.index("warning")
+
+
+def test_taxonomy_coverage_reports_all_named_window() -> None:
+    from system_log_dynamics.reporting import (
+        render_analysis_window_markdown,
+    )
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=list(range(8)),
+            window_id="all-named",
+        )
+    )
+
+    assert "## Taxonomy coverage" in rendered
+    assert "| Status | all_named |" in rendered
+    assert "| Named event count | 8 |" in rendered
+    assert "| Named event proportion | 100% |" in rendered
+    assert "| Other event count | 0 |" in rendered
+    assert "| Other event proportion | 0% |" in rendered
+    assert "| Represented named category count | 8 |" in rendered
+    assert "| Absent named category count | 0 |" in rendered
+    assert "| Absent named event types | none |" in rendered
+
+
+def test_taxonomy_coverage_reports_mixed_window() -> None:
+    from system_log_dynamics.reporting import (
+        render_analysis_window_markdown,
+    )
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=[0, 1, 8, 8],
+            window_id="mixed-coverage",
+        )
+    )
+
+    assert "| Status | mixed |" in rendered
+    assert "| Named event count | 2 |" in rendered
+    assert "| Named event proportion | 50% |" in rendered
+    assert "| Other event count | 2 |" in rendered
+    assert "| Other event proportion | 50% |" in rendered
+    assert "| Represented named category count | 2 |" in rendered
+    assert "| Absent named category count | 6 |" in rendered
+    assert (
+        "| Represented named event types | boot\\_boundary and service\\_started |"
+    ) in rendered
+
+
+def test_taxonomy_coverage_reports_all_other_window() -> None:
+    from system_log_dynamics.reporting import (
+        render_analysis_window_markdown,
+    )
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=[8, 8, 8],
+            window_id="all-other",
+        )
+    )
+
+    assert "| Status | all_other |" in rendered
+    assert "| Named event count | 0 |" in rendered
+    assert "| Named event proportion | 0% |" in rendered
+    assert "| Other event count | 3 |" in rendered
+    assert "| Other event proportion | 100% |" in rendered
+    assert "| Represented named category count | 0 |" in rendered
+    assert "| Absent named category count | 8 |" in rendered
+    assert "| Represented named event types | none |" in rendered
+    assert (
+        "It is not a classifier-quality score, anomaly score, "
+        "threat score, or security conclusion."
+    ) in rendered
 
 
 def test_analysis_window_markdown_without_identifier() -> None:
@@ -775,6 +848,65 @@ def test_comparison_renderer_orders_union_mappings() -> None:
     )
 
 
+def test_comparison_reports_taxonomy_coverage_deltas() -> None:
+    from system_log_dynamics.reporting import (
+        build_window_comparison_report,
+        render_window_comparison_markdown,
+    )
+
+    report = build_window_comparison_report(
+        _window(
+            symbols=[0, 8, 8],
+            window_id="coverage-left",
+        ),
+        _window(
+            symbols=[0, 1, 1, 8],
+            window_id="coverage-right",
+        ),
+    )
+
+    rendered = render_window_comparison_markdown(report)
+
+    assert "## Taxonomy coverage comparison" in rendered
+    assert "| Status | mixed | mixed | not applicable |" in rendered
+    assert "| Named event count | 1 | 3 | 2 |" in rendered
+    assert "| Other event count | 2 | 1 | -1 |" in rendered
+    assert ("| Represented named category count | 1 | 2 | 1 |") in rendered
+    assert ("| Newly represented named event types | service\\_started |") in rendered
+    assert ("| Newly absent named event types | none |") in rendered
+
+
+def test_comparison_reports_newly_absent_named_categories() -> None:
+    from system_log_dynamics.reporting import (
+        build_window_comparison_report,
+        render_window_comparison_markdown,
+    )
+
+    report = build_window_comparison_report(
+        _window(
+            symbols=[0, 1],
+            window_id="all-named",
+        ),
+        _window(
+            symbols=[8, 8],
+            window_id="all-other",
+        ),
+    )
+
+    rendered = render_window_comparison_markdown(report)
+
+    assert ("| Status | all_named | all_other | not applicable |") in rendered
+    assert "| Named event proportion | 100% | 0% | -100% |" in rendered
+    assert "| Other event proportion | 0% | 100% | 100% |" in rendered
+    assert (
+        "| Newly absent named event types | boot\\_boundary and service\\_started |"
+    ) in rendered
+    assert (
+        "They are not evidence of classifier quality, anomaly, "
+        "threat, compromise, causality, safety, or intent."
+    ) in rendered
+
+
 def test_experiment_001_routine_report_matches_golden_bytes() -> None:
     import hashlib
 
@@ -791,9 +923,9 @@ def test_experiment_001_routine_report_matches_golden_bytes() -> None:
         ).window
     ).encode("utf-8")
 
-    assert len(golden_bytes) == 3753
+    assert len(golden_bytes) == 4517
     assert hashlib.sha256(golden_bytes).hexdigest() == (
-        "f6dcfb5761981a4f21a14e8a1774af8238f99aa74c6da450357d0542ea3443f8"
+        "94c1a33cca579e8bdecb21bdce0a9d85d2ec64a0f2350e2dafd833dd972b1b20"
     )
     assert rendered_bytes == golden_bytes
 
@@ -830,8 +962,8 @@ def test_experiment_001_comparison_report_matches_golden_bytes() -> None:
         )
     ).encode("utf-8")
 
-    assert len(golden_bytes) == 4872
+    assert len(golden_bytes) == 5725
     assert hashlib.sha256(golden_bytes).hexdigest() == (
-        "9effbd6986663dbae37ff1e450406ad9842843f74e25e834291c8aae9ca68ba5"
+        "1f50fa5423f57c4c9d17d27a0d717b4974be86ccfb167c3748c8f1977989cf58"
     )
     assert rendered_bytes == golden_bytes

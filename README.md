@@ -15,7 +15,7 @@ and the [release process](docs/release-process.md).
 The strict journal JSON Lines parser, privacy-safe normalizer,
 deterministic streaming classifier, validated integer encoding, validated
 Digit-Probe analysis, reproducible per-window analysis manifests, deterministic
-immutable temporal burst summaries, typed structured comparison,
+immutable temporal burst summaries, typed structured comparison, deterministic taxonomy coverage,
 deterministic Markdown reporting, file-based command-line analysis, and
 privacy-safe bounded local journal acquisition are implemented.
 
@@ -115,6 +115,13 @@ dominant categories, the `other` proportion, and the existing runs and
 compression values. The summary is descriptive rather than diagnostic: it
 does not infer anomaly, compromise, malicious behaviour, safety, causality,
 randomness, or intent.
+
+Single-window and comparison reports also expose deterministic taxonomy
+coverage: named and `other` counts and proportions, represented and absent
+named categories, and coverage changes between two windows. Coverage is a
+structural description of the accepted taxonomy, not a classifier-quality,
+anomaly, threat, or security score. Decision 0017 records the Linux
+vocabulary review and retains taxonomy version `1`.
 
 Reviewed golden outputs are stored in:
 
