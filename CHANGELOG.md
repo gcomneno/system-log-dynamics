@@ -8,6 +8,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added a deterministic plain-language summary to single-window Markdown
+  reports, including dominant and absent categories, the `other` proportion,
+  and cautious ordering and repetition context without diagnostic or security
+  inference.
+
 - Added the explicit `system-log-dynamics collect OUTPUT.jsonl` boundary for
   bounded local Linux journal acquisition.
 - Added shell-free `journalctl` execution with reviewed boot, time, unit,

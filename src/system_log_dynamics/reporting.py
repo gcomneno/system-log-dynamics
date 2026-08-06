@@ -134,6 +134,111 @@ def _symbol_label(symbol: int) -> str:
     return decode_event_symbol(symbol).value
 
 
+def _format_event_type_list(symbols: tuple[int, ...]) -> str:
+    labels = tuple(_escape_markdown_text(_symbol_label(symbol)) for symbol in symbols)
+
+    if not labels:
+        return "none"
+    if len(labels) == 1:
+        return labels[0]
+    if len(labels) == 2:
+        return f"{labels[0]} and {labels[1]}"
+
+    return ", ".join(labels[:-1]) + f", and {labels[-1]}"
+
+
+def _render_plain_language_summary(window: AnalysisWindow) -> str:
+    """Render deterministic descriptive facts without diagnostic inference."""
+
+    result = window.result
+
+    if result.sample_size <= 0:
+        raise ValueError("analysis result sample size must be positive")
+
+    symbols = tuple(range(result.alphabet))
+    counts = tuple(result.counts[symbol] for symbol in symbols)
+
+    represented_symbols = tuple(
+        symbol for symbol in symbols if result.counts[symbol] > 0
+    )
+    absent_symbols = tuple(symbol for symbol in symbols if result.counts[symbol] == 0)
+
+    maximum_count = max(counts)
+    dominant_symbols = tuple(
+        symbol for symbol in symbols if result.counts[symbol] == maximum_count
+    )
+    dominant_proportion = maximum_count / result.sample_size
+
+    event_word = "event" if result.sample_size == 1 else "events"
+    dominant_event_word = "event" if maximum_count == 1 else "events"
+
+    lines = [
+        (
+            f"This window contains {result.sample_size} {event_word} across "
+            f"{len(represented_symbols)} of {result.alphabet} configured "
+            "event categories."
+        ),
+    ]
+
+    dominant_labels = _format_event_type_list(dominant_symbols)
+
+    if len(dominant_symbols) == 1:
+        lines.append(
+            f"The most frequent category is {dominant_labels} with "
+            f"{maximum_count} {dominant_event_word} "
+            f"({_format_percentage(dominant_proportion)})."
+        )
+    else:
+        lines.append(
+            f"The most frequent categories are {dominant_labels}, each with "
+            f"{maximum_count} {dominant_event_word} "
+            f"({_format_percentage(dominant_proportion)})."
+        )
+
+    other_symbols = tuple(
+        symbol for symbol in symbols if _symbol_label(symbol) == "other"
+    )
+
+    if len(other_symbols) != 1:
+        raise ValueError("analysis alphabet must contain exactly one other category")
+
+    other_symbol = other_symbols[0]
+    other_count = result.counts[other_symbol]
+
+    if dominant_symbols != (other_symbol,):
+        other_event_word = "event" if other_count == 1 else "events"
+        lines.append(
+            f"The `other` category contains {other_count} {other_event_word} "
+            f"({_format_percentage(other_count / result.sample_size)})."
+        )
+
+    if absent_symbols:
+        lines.append(
+            "Absent categories: " + _format_event_type_list(absent_symbols) + "."
+        )
+    else:
+        lines.append("All configured event categories are represented.")
+
+    if len(set(counts)) == 1:
+        lines.append("The category counts are evenly distributed in this window.")
+    else:
+        lines.append("The category counts are unevenly distributed in this window.")
+
+    lines.append(
+        "The encoded sequence has a runs z-score of "
+        f"{_format_number(result.runs.z_score)} and a compression ratio of "
+        f"{_format_number(result.compress_ratio)}; these values describe "
+        "ordering and repetition only."
+    )
+    lines.append(
+        "These observations are descriptive and are not proof of anomaly, "
+        "compromise, malicious behaviour, randomness, causality, safety, "
+        "or intent."
+    )
+
+    return "\n".join(f"- {line}" for line in lines)
+
+
 def _markdown_table(
     headers: tuple[str, ...],
     rows: tuple[tuple[str, ...], ...],
@@ -246,6 +351,7 @@ def render_analysis_window_markdown(window: AnalysisWindow) -> str:
     result = window.result
     temporal = window.temporal
     window_id = _format_window_id(manifest.window_id)
+    plain_language_summary = _render_plain_language_summary(window)
 
     provenance = _markdown_table(
         ("Field", "Value"),
@@ -394,6 +500,8 @@ def render_analysis_window_markdown(window: AnalysisWindow) -> str:
             "randomness, causality, or intent. Unavailable metrics remain "
             "unavailable rather than being coerced to zero."
         ),
+        "## Plain-language summary",
+        plain_language_summary,
         "## Provenance",
         provenance,
         "## Analysis summary",
