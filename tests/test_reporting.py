@@ -424,11 +424,14 @@ def test_analysis_window_markdown_has_exact_compact_contract() -> None:
     )
     assert rendered.endswith("interpretive inference.\n")
     assert rendered.count("\n# ") == 0
-    assert rendered.count("\n## ") == 10
+    assert rendered.count("\n## ") == 11
     assert rendered.endswith("\n")
     assert not rendered.endswith("\n\n")
 
     expected_fragments = (
+        "## Plain-language summary",
+        "All configured event categories are represented.",
+        "The category counts are evenly distributed in this window.",
         "## Provenance",
         "| Window identifier | window\\_\\[one\\] |",
         "| Input SHA-256 | " + ("a" * 64) + " |",
@@ -455,6 +458,89 @@ def test_analysis_window_markdown_has_exact_compact_contract() -> None:
 
     for fragment in expected_fragments:
         assert fragment in rendered
+
+
+def test_plain_language_summary_reports_dominant_other_and_absent_categories() -> None:
+    from system_log_dynamics.reporting import render_analysis_window_markdown
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=[8, 8, 8, 8, 1, 6],
+            window_id="dominant-other",
+        )
+    )
+
+    assert (
+        "- This window contains 6 events across 3 of 9 configured event categories."
+    ) in rendered
+    assert ("- The most frequent category is other with 4 events (66.67%).") in rendered
+    assert ("- The `other` category contains 4 events (66.67%).") not in rendered
+    assert rendered.count("4 events (66.67%)") == 1
+    assert (
+        "- Absent categories: boot\\_boundary, service\\_stopped, "
+        "authentication\\_success, authentication\\_failure, "
+        "session\\_boundary, and error."
+    ) in rendered
+    assert (
+        "- The category counts are unevenly distributed in this window."
+    ) in rendered
+    assert (
+        "These observations are descriptive and are not proof of anomaly, "
+        "compromise, malicious behaviour, randomness, causality, safety, "
+        "or intent."
+    ) in rendered
+
+
+def test_plain_language_summary_handles_one_represented_category() -> None:
+    from system_log_dynamics.reporting import render_analysis_window_markdown
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=[7],
+            window_id="one-category",
+        )
+    )
+
+    assert (
+        "- This window contains 1 event across 1 of 9 configured event categories."
+    ) in rendered
+    assert ("- The most frequent category is error with 1 event (100%).") in rendered
+    assert "- The `other` category contains 0 events (0%)." in rendered
+
+
+def test_plain_language_summary_reports_named_dominant_category() -> None:
+    from system_log_dynamics.reporting import render_analysis_window_markdown
+
+    rendered = render_analysis_window_markdown(
+        _window(
+            symbols=[1, 1, 1, 8],
+            window_id="named-dominant",
+        )
+    )
+
+    assert (
+        "- The most frequent category is service\\_started with 3 events (75%)."
+    ) in rendered
+    assert "- The `other` category contains 1 event (25%)." in rendered
+
+
+def test_plain_language_summary_orders_tied_dominant_categories() -> None:
+    from system_log_dynamics.reporting import render_analysis_window_markdown
+
+    window = _window(
+        symbols=[6, 1, 8, 6, 1],
+        window_id="tied-dominant",
+    )
+
+    first = render_analysis_window_markdown(window)
+    second = render_analysis_window_markdown(window)
+
+    assert first == second
+    assert (
+        "- The most frequent categories are service\\_started and warning, "
+        "each with 2 events (40%)."
+    ) in first
+    assert first.index("service\\_started") < first.index("warning")
 
 
 def test_analysis_window_markdown_without_identifier() -> None:
@@ -705,9 +791,9 @@ def test_experiment_001_routine_report_matches_golden_bytes() -> None:
         ).window
     ).encode("utf-8")
 
-    assert len(golden_bytes) == 3172
+    assert len(golden_bytes) == 3753
     assert hashlib.sha256(golden_bytes).hexdigest() == (
-        "f4c8892f74090da5ae37c234fca9d27fcba02548dcc79fceb220effff5888ad5"
+        "f6dcfb5761981a4f21a14e8a1774af8238f99aa74c6da450357d0542ea3443f8"
     )
     assert rendered_bytes == golden_bytes
 
