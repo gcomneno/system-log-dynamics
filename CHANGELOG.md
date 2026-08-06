@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added the installed `system-log-dynamics analyze` and
+  `system-log-dynamics compare` commands as thin adapters over the existing
+  public pipeline.
+- Added strict UTF-8 input handling, exact-byte manifest provenance, shared
+  comparison configuration, optional stable window identifiers, and
+  deterministic Markdown output.
+- Added stable controlled exit codes and concise standard-error diagnostics
+  without tracebacks for expected failures.
+- Added atomic output-file creation, explicit overwrite control, input-file
+  replacement protection, temporary-file cleanup, and UTF-8 output
+  validation.
+- Added isolated-wheel verification proving that the installed console
+  script reproduces both Experiment 001 golden reports byte for byte.
+
 - Added deterministic Markdown rendering for validated analysis windows and
   structured two-window comparisons.
 - Added an immutable `WindowComparisonReport` presentation boundary retaining
