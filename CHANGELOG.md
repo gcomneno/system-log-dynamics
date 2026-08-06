@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.1.0] - 2026-08-06
+
 ### Added
 
 - Added the explicit `system-log-dynamics collect OUTPUT.jsonl` boundary for
