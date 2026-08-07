@@ -52,7 +52,7 @@ sharing, and do not use it as a public fixture.
 
 optional bounded local acquisition → JSON Lines file → normalization →
 classification → integer symbols → Digit-Probe analysis → structured window
-comparison → deterministic Markdown reporting.
+comparison → deterministic Markdown or versioned evidence JSON.
 
 ## Installation and quick start
 
@@ -173,7 +173,10 @@ Common options are:
   default `100000`;
 - `--schur-capacity COUNT`, a positive Digit-Probe Schur capacity with
   default `5000`;
-- `--output PATH`, which writes the complete report atomically;
+- `--format {markdown,evidence-json}`, selecting the human-readable Markdown
+  contract or the versioned machine-readable evidence contract; Markdown
+  remains the default;
+- `--output PATH`, which writes the complete result atomically;
 - `--overwrite`, which requires `--output` and permits atomic replacement
   of an existing destination.
 
@@ -212,6 +215,64 @@ system-log-dynamics --help
 system-log-dynamics analyze --help
 system-log-dynamics compare --help
 system-log-dynamics collect --help
+```
+
+## Machine-readable evidence
+
+`analyze` and `compare` can emit schema-versioned deterministic JSON without
+requiring consumers to parse Markdown:
+
+```console
+system-log-dynamics analyze \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    --window-id experiment-001-routine \
+    --format evidence-json
+```
+
+For a comparison:
+
+```console
+system-log-dynamics compare \
+    fixtures/synthetic/experiment-001-routine.jsonl \
+    fixtures/synthetic/experiment-001-boot-error-burst.jsonl \
+    --left-window-id experiment-001-routine \
+    --right-window-id experiment-001-boot-error-burst \
+    --format evidence-json
+```
+
+Evidence schema version 1 carries project and Digit-Probe provenance,
+manifest and taxonomy versions, exact-input digest and byte size, analysis
+configuration, deterministic category and taxonomy coverage data, statistical
+and temporal evidence, structured `right - left` comparisons, and explicit
+representations for unavailable or non-finite numeric values.
+
+The bundle deliberately excludes raw journal messages, raw-event export,
+private input paths, and security verdicts. Machine-readable semantic flags
+state that the evidence does not provide anomaly or threat scores, intrusion
+verdicts, confidence estimates, or automatic actions.
+
+The public Python API exposes:
+
+```python
+build_analysis_evidence_envelope(window)
+build_comparison_evidence_envelope(left, right)
+render_evidence_json(envelope)
+parse_evidence_envelope_json(data)
+parse_evidence_bundle_json(data)
+```
+
+Consumers relying on version 1 should use `parse_evidence_bundle_json()`
+for strict complete-payload validation.
+
+See [Evidence bundle v1](docs/evidence-bundle-v1.md) for the schema reference
+and [Evidence consumer guide](docs/evidence-consumer-guide.md) for integration,
+provenance, privacy, and interpretation guidance.
+
+Golden machine-readable outputs are stored in:
+
+```text
+fixtures/reports/experiment-001-routine.evidence.json
+fixtures/reports/experiment-001-comparison.evidence.json
 ```
 
 ## Optional local journal acquisition
@@ -288,7 +349,9 @@ for the complete security, privacy, file-safety, and provenance policy.
 The accepted boundaries and their rationale are indexed in
 [docs/decisions/README.md](docs/decisions/README.md). In particular,
 Decision 0016 records why 0.1.0 is the first public milestone and why the
-Digit-Probe commit pin remains in place.
+Digit-Probe commit pin remains in place. Decision 0018 defines the versioned
+machine-readable evidence boundary and its privacy, determinism, evolution,
+and semantic constraints.
 
 ## Development
 

@@ -94,8 +94,9 @@ def test_release_material_is_configured_for_source_and_wheel_artifacts() -> None
     assert "recursive-include docs *.md" in manifest
     assert "recursive-include fixtures/synthetic *.jsonl" in manifest
     assert "recursive-include fixtures/reports *.md" in manifest
+    assert "recursive-include fixtures/reports *.json" in manifest
     assert data_files["share/system-log-dynamics"] == ["CHANGELOG.md"]
-    assert data_files["share/system-log-dynamics/docs"] == ["docs/release-process.md"]
+    assert data_files["share/system-log-dynamics/docs"] == ["docs/*.md"]
     assert data_files["share/system-log-dynamics/docs/decisions"] == [
         "docs/decisions/*.md"
     ]
@@ -109,7 +110,8 @@ def test_release_material_is_configured_for_source_and_wheel_artifacts() -> None
         "fixtures/synthetic/*.jsonl"
     ]
     assert data_files["share/system-log-dynamics/fixtures/reports"] == [
-        "fixtures/reports/*.md"
+        "fixtures/reports/*.md",
+        "fixtures/reports/*.json",
     ]
 
 

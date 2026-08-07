@@ -23,3 +23,4 @@ limitations travel with the package.
 | [0015](0015-privacy-safe-local-journal-acquisition.md) | Privacy-safe local acquisition |
 | [0016](0016-first-public-milestone.md) | First public milestone release boundary |
 | [0017](0017-taxonomy-coverage-and-vocabulary-review.md) | Taxonomy coverage and Linux vocabulary review |
+| [0018](0018-versioned-machine-readable-evidence-bundle.md) | Versioned machine-readable evidence bundle |

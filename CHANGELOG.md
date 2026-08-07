@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added versioned deterministic machine-readable evidence bundles for one
+  analysis window and structured `right - left` comparisons through explicit
+  `--format evidence-json`, while preserving Markdown as the CLI default.
+- Added schema-versioned provenance, taxonomy coverage, statistical and
+  temporal evidence, explicit non-finite/unavailable numeric states, and
+  machine-readable descriptive-only semantic limitations.
+- Added strict complete-payload parsing that rejects incompatible schema
+  versions, unknown version-1 fields, invalid structures, duplicate JSON keys,
+  invalid numeric states, and taxonomy-contract mismatches.
+- Added canonical Experiment 001 JSON golden bundles, consumer documentation,
+  wheel/sdist packaging, and installed-wheel deterministic execution checks.
+- Added Decision 0018 defining the machine-readable evidence boundary,
+  privacy exclusions, schema evolution policy, and separation from IDS or AI
+  interpretation.
+
 - Added deterministic taxonomy-coverage models and Markdown reporting for
   named versus `other` events, represented and absent named categories, and
   exact `right - left` coverage comparisons.
