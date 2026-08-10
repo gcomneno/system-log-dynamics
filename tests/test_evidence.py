@@ -775,7 +775,7 @@ def test_analysis_json_is_deterministic_and_standard() -> None:
 
     parsed = parse_evidence_envelope_json(first)
 
-    assert parsed == (build_analysis_evidence_envelope(window))
+    assert render_evidence_json(parsed) == first
 
 
 def test_analysis_bundle_excludes_private_source_material() -> None:
@@ -1010,12 +1010,7 @@ def test_comparison_json_is_deterministic_and_round_trips() -> None:
 
     parsed = parse_evidence_envelope_json(first)
 
-    assert parsed == (
-        build_comparison_evidence_envelope(
-            left,
-            right,
-        )
-    )
+    assert render_evidence_json(parsed) == first
 
 
 def test_comparison_bundle_excludes_private_material() -> None:
@@ -1277,3 +1272,88 @@ def test_envelope_parser_remains_envelope_only() -> None:
 
     with pytest.raises(ValueError):
         parse_evidence_bundle_json(_strict_json(document))
+
+
+@pytest.mark.parametrize(
+    ("python_312_value", "python_311_value", "expected"),
+    [
+        (
+            -0.3409398929321678,
+            -0.34093989293216775,
+            -0.34093989293217,
+        ),
+        (
+            -0.1504624923764993,
+            -0.15046249237649928,
+            -0.1504624923765,
+        ),
+        (
+            0.06725621738835807,
+            0.06725621738835806,
+            0.067256217388358,
+        ),
+        (
+            0.029656338920157177,
+            0.02965633892015712,
+            0.029656338920157,
+        ),
+        (
+            0.1289463213324359,
+            0.12894632133243586,
+            0.12894632133244,
+        ),
+        (
+            -0.05144694164854185,
+            -0.051446941648541834,
+            -0.051446941648542,
+        ),
+    ],
+)
+def test_renderer_canonicalizes_cross_python_float_noise(
+    python_312_value: float,
+    python_311_value: float,
+    expected: float,
+) -> None:
+    first = EvidenceEnvelope(
+        schema_name=ANALYSIS_EVIDENCE_SCHEMA_NAME,
+        schema_version=EVIDENCE_SCHEMA_VERSION,
+        bundle_type=EvidenceBundleType.ANALYSIS_WINDOW,
+        payload={"value": python_312_value},
+    )
+
+    second = EvidenceEnvelope(
+        schema_name=ANALYSIS_EVIDENCE_SCHEMA_NAME,
+        schema_version=EVIDENCE_SCHEMA_VERSION,
+        bundle_type=EvidenceBundleType.ANALYSIS_WINDOW,
+        payload={"value": python_311_value},
+    )
+
+    assert first.payload["value"] == python_312_value
+    assert second.payload["value"] == python_311_value
+
+    first_json = render_evidence_json(first)
+    second_json = render_evidence_json(second)
+
+    assert first_json == second_json
+
+    decoded = json.loads(first_json)
+
+    assert decoded["payload"]["value"] == expected
+
+
+def test_renderer_normalizes_signed_zero() -> None:
+    negative = EvidenceEnvelope(
+        schema_name=ANALYSIS_EVIDENCE_SCHEMA_NAME,
+        schema_version=EVIDENCE_SCHEMA_VERSION,
+        bundle_type=EvidenceBundleType.ANALYSIS_WINDOW,
+        payload={"value": -0.0},
+    )
+
+    positive = EvidenceEnvelope(
+        schema_name=ANALYSIS_EVIDENCE_SCHEMA_NAME,
+        schema_version=EVIDENCE_SCHEMA_VERSION,
+        bundle_type=EvidenceBundleType.ANALYSIS_WINDOW,
+        payload={"value": 0.0},
+    )
+
+    assert render_evidence_json(negative) == render_evidence_json(positive)

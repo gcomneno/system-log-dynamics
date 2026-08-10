@@ -64,6 +64,11 @@ Supported states are:
 Non-finite values are therefore never serialized as non-standard JSON number
 tokens.
 
+Finite floating-point values are canonicalized at the JSON serialization
+boundary to 14 significant decimal digits. This removes runtime-specific
+last-bit differences while leaving integers exact and leaving the in-memory
+domain results unchanged.
+
 `not_computable` is used for a derived comparison value when the corresponding
 operation cannot be computed from its source states. It is not a statistical
 or security interpretation.
@@ -218,6 +223,8 @@ Canonical serialization uses:
 - compact JSON separators;
 - stable insertion ordering defined by the schema;
 - explicit numeric states;
+- 14 significant decimal digits for finite floating-point values;
+- normalized positive zero for signed floating-point zero;
 - exactly one trailing newline.
 
 The version-1 golden fixtures are:

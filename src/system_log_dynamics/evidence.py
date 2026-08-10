@@ -49,6 +49,8 @@ __all__ = [
 ANALYSIS_EVIDENCE_SCHEMA_NAME: Final = "system-log-dynamics.analysis-evidence"
 COMPARISON_EVIDENCE_SCHEMA_NAME: Final = "system-log-dynamics.comparison-evidence"
 EVIDENCE_SCHEMA_VERSION: Final = 1
+_EVIDENCE_FLOAT_SIGNIFICANT_DIGITS: Final = 14
+_EVIDENCE_FLOAT_COMPARISON_ABS_TOLERANCE: Final = 5e-14
 
 
 class EvidenceBundleType(StrEnum):
@@ -158,6 +160,36 @@ def _thaw_json_value(value: object) -> object:
 
     if isinstance(value, tuple):
         return [_thaw_json_value(item) for item in value]
+
+    return value
+
+
+def _canonicalize_serialized_floats(
+    value: object,
+) -> object:
+    if isinstance(value, Mapping):
+        return {
+            key: _canonicalize_serialized_floats(item) for key, item in value.items()
+        }
+
+    if isinstance(value, (list, tuple)):
+        return [_canonicalize_serialized_floats(item) for item in value]
+
+    if type(value) is float:
+        if not isfinite(value):
+            raise ValueError("serialized evidence floats must be finite")
+
+        canonical = float(
+            format(
+                value,
+                (f".{_EVIDENCE_FLOAT_SIGNIFICANT_DIGITS}g"),
+            )
+        )
+
+        if canonical == 0.0:
+            return 0.0
+
+        return canonical
 
     return value
 
@@ -766,7 +798,7 @@ def render_evidence_json(
 
     return (
         json.dumps(
-            _envelope_to_json_object(envelope),
+            _canonicalize_serialized_floats(_envelope_to_json_object(envelope)),
             ensure_ascii=False,
             allow_nan=False,
             separators=(",", ":"),
@@ -1150,7 +1182,7 @@ def _strict_category_distribution(
             proportion,
             expected,
             rel_tol=0.0,
-            abs_tol=1e-15,
+            abs_tol=_EVIDENCE_FLOAT_COMPARISON_ABS_TOLERANCE,
         ):
             raise ValueError("category distribution proportion does not match count")
 
@@ -1169,7 +1201,7 @@ def _strict_category_distribution(
         proportion_total,
         1.0,
         rel_tol=0.0,
-        abs_tol=1e-15,
+        abs_tol=_EVIDENCE_FLOAT_COMPARISON_ABS_TOLERANCE,
     ):
         raise ValueError("category proportions must sum to one")
 
@@ -1233,7 +1265,7 @@ def _strict_coverage(
         named_proportion,
         named_count / sample_size,
         rel_tol=0.0,
-        abs_tol=1e-15,
+        abs_tol=_EVIDENCE_FLOAT_COMPARISON_ABS_TOLERANCE,
     ):
         raise ValueError("taxonomy named proportion mismatch")
 
@@ -1241,7 +1273,7 @@ def _strict_coverage(
         other_proportion,
         other_count / sample_size,
         rel_tol=0.0,
-        abs_tol=1e-15,
+        abs_tol=_EVIDENCE_FLOAT_COMPARISON_ABS_TOLERANCE,
     ):
         raise ValueError("taxonomy other proportion mismatch")
 

@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
 - Added versioned deterministic machine-readable evidence bundles for one
   analysis window and structured `right - left` comparisons through explicit
   `--format evidence-json`, while preserving Markdown as the CLI default.
+- Canonicalized serialized finite floating-point evidence to 14 significant
+  decimal digits so supported Python runtimes do not expose insignificant
+  last-bit differences in the byte-level JSON contract.
 - Added schema-versioned provenance, taxonomy coverage, statistical and
   temporal evidence, explicit non-finite/unavailable numeric states, and
   machine-readable descriptive-only semantic limitations.

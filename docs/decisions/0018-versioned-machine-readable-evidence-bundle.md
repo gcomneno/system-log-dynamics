@@ -110,6 +110,11 @@ For identical input bytes, stable identifiers, configuration, taxonomy,
 project/dependency versions, and implementation version, canonical
 serialization is byte-identical.
 
+Finite floating-point values are canonicalized at serialization to
+14 significant decimal digits. This deliberately removes insignificant
+runtime-specific binary tail differences while preserving the original
+in-memory domain values and exact integer evidence.
+
 Version-1 golden analysis and comparison bundles are maintained alongside the
 existing Experiment 001 Markdown golden reports.
 

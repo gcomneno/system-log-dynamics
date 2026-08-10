@@ -95,6 +95,12 @@ must remain distinguishable from a finite gap mean.
 Likewise, a comparison delta marked `not_computable` must not be silently
 converted to zero.
 
+Finite floating-point values in serialized evidence are canonicalized to
+14 significant decimal digits. Consumers should treat the serialized evidence
+value as authoritative for the versioned interchange contract rather than
+attempting to reconstruct binary floating-point tail bits from another Python
+runtime.
+
 ## Privacy
 
 A consumer should not need the original journal file after receiving a bundle
