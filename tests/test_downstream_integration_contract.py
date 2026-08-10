@@ -13,8 +13,15 @@ DECISION = (
     / "decisions"
     / "0019-downstream-ids-integration-and-trust-boundary.md"
 )
+SEMANTIC_DECISION = (
+    ROOT
+    / "docs"
+    / "decisions"
+    / "0021-versioned-semantic-facets.md"
+)
 
 CONTRACT = ROOT / "docs" / "downstream-ids-integration-contract.md"
+SEMANTIC_REFERENCE = ROOT / "docs" / "semantic-evidence-v1.md"
 
 README = ROOT / "README.md"
 DECISION_INDEX = ROOT / "docs" / "decisions" / "README.md"
@@ -34,12 +41,16 @@ def _read(path: Path) -> str:
 
 def test_public_boundary_documents_exist_and_are_indexed() -> None:
     assert DECISION.is_file()
+    assert SEMANTIC_DECISION.is_file()
     assert CONTRACT.is_file()
+    assert SEMANTIC_REFERENCE.is_file()
 
     index = _read(DECISION_INDEX)
 
     assert "0019-downstream-ids-integration-and-trust-boundary.md" in index
     assert "Downstream IDS integration and trust boundary" in index
+    assert "0021-versioned-semantic-facets.md" in index
+    assert "Versioned semantic facets for downstream explanation" in index
 
 
 def test_readme_declares_evidence_engine_not_ids_boundary() -> None:
@@ -53,18 +64,22 @@ def test_readme_declares_evidence_engine_not_ids_boundary() -> None:
     assert "STOP at the System Log Dynamics boundary" in readme
 
 
-def test_contract_accepts_only_explicit_evidence_v1() -> None:
+def test_contract_accepts_only_explicit_versioned_evidence() -> None:
     contract = _read(CONTRACT)
 
     for required in (
         "system-log-dynamics.analysis-evidence",
         "system-log-dynamics.comparison-evidence",
+        "system-log-dynamics.semantic-evidence",
         "`analysis_window`",
         "`window_comparison`",
-        "Version `1` is the only currently accepted evidence schema version.",
+        "`semantic_events`",
+        "Version `1` is the only currently accepted schema version",
+        "semantic-facet version `1`",
         "parse_evidence_bundle_json()",
+        "parse_semantic_evidence_json()",
         "Consumers must reject:",
-        "Silent fallback to version 1 is prohibited.",
+        "Silent fallback to a previous version is prohibited.",
     ):
         assert required in contract
 
@@ -80,6 +95,7 @@ def test_contract_requires_reproducibility_provenance() -> None:
         "digit_probe_commit",
         "manifest_schema_version",
         "taxonomy_version",
+        "semantic_facets_version",
         "window_id",
         "digest_algorithm",
         "sha256",
@@ -151,11 +167,13 @@ def test_runtime_dependencies_remain_outside_ids_ai_boundary() -> None:
     assert "security response" not in metadata
 
 
-def test_synthetic_example_stops_before_security_interpretation() -> None:
+def test_synthetic_examples_stop_before_security_interpretation() -> None:
     contract = _read(CONTRACT)
 
     assert "fixtures/synthetic/experiment-001-routine.jsonl" in contract
+    assert "fixtures/synthetic/restart-loop-semantic.jsonl" in contract
     assert "boundary stops here" in contract
+    assert "security interpretation begins only downstream" in contract
     assert (
         "No signal, alert, incident hypothesis, confirmed incident, trigger, AI"
         in contract
