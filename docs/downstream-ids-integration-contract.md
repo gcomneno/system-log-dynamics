@@ -26,7 +26,7 @@ independent provenance: consumers must explicitly support the taxonomy
 semantics carried by a bundle and reject unsupported taxonomy versions rather
 than inferring compatibility from evidence schema version alone.
 
-Semantic evidence additionally carries semantic-facet version `1`. Semantic
+Semantic evidence additionally carries semantic-facet version `2`. Semantic
 facet compatibility is independent from both taxonomy version and the existing
 analysis/comparison evidence schemas.
 
@@ -48,6 +48,8 @@ Consumers must reject:
 
 A future evidence or semantic-facet version is incompatible until the
 downstream consumer explicitly adds and reviews support for it.
+
+Silent fallback from semantic-facet version `2` to version `1` is prohibited.
 
 ## Required provenance
 
@@ -91,23 +93,40 @@ Semantic evidence is a descriptive companion to the small primary event
 alphabet. It may preserve selected structured Linux/systemd meaning that would
 otherwise be lost when the primary event remains `other`.
 
-Semantic facet version 1 recognizes only:
+Semantic facet version 2 recognizes only:
 
 - service restart scheduling;
 - service process exit;
+- systemd unit start-job beginning;
+- systemd unit success;
 - service process output through `stdout` or `stderr`.
 
-The first two actions require stable systemd `MESSAGE_ID` values and structured
-service subjects. Process output requires a service `_SYSTEMD_UNIT` and a
-structured stdout/stderr transport.
+`restart_scheduled` and `process_exited` retain their version-1 recognition
+semantics: stable systemd `MESSAGE_ID` values plus structured service subjects.
+Process output requires a service `_SYSTEMD_UNIT` and a structured stdout/stderr
+transport.
+
+The version-2 `start_job_begun` and `unit_succeeded` actions require all of:
+
+- exact systemd `MESSAGE_ID` for the action;
+- `SYSLOG_IDENTIFIER=systemd`;
+- structured service `UNIT` or `USER_UNIT` subject.
+
+Exact lifecycle message-ID rules take precedence over generic process-output
+recognition.
 
 Semantic evidence preserves the normalized systemd service-unit subject so a
 downstream consumer can explain which service participated in the observed
 lifecycle. It also preserves source ordering and privacy-safe relative temporal
 offsets.
 
+The semantic layer does not parse free-text journal `MESSAGE` values to recover
+DBus activation/timeout or CRON session open/close semantics when structured
+target/result or PAM/session anchors are absent.
+
 Those facts remain observations. System Log Dynamics does not infer recurrence,
-causality, anomaly, threat, intrusion, intent, or response policy from them.
+causality, anomaly, threat, intrusion, intent, service health, security posture,
+or response policy from them.
 
 ## Data-minimization contract
 
@@ -233,14 +252,15 @@ separate downstream consumer
         X  boundary stops here
 ```
 
-The semantic acceptance fixture exercises the complementary descriptive path:
+The semantic restart-loop acceptance fixture exercises the original descriptive
+path:
 
 ```text
 fixtures/synthetic/restart-loop-semantic.jsonl
         |
         | deterministic classification + semantic facets
         v
-system-log-dynamics.semantic-evidence / schema version 1
+system-log-dynamics.semantic-evidence / schema version 1 / facets version 2
         |
         | strict validation + provenance preservation
         v
@@ -249,9 +269,21 @@ separate downstream consumer
         X  security interpretation begins only downstream
 ```
 
-The semantic fixture retains primary taxonomy `other` while exposing the
+The restart-loop fixture retains primary taxonomy `other` while exposing the
 structured lifecycle sequence `restart_scheduled -> process_output ->
 process_exited` for one generic service subject.
+
+The version-2 systemd lifecycle fixture adds the structured-only extension:
+
+```text
+fixtures/synthetic/systemd-lifecycle-semantic-v2.jsonl
+        |
+        | exact systemd MESSAGE_ID + structured UNIT/USER_UNIT
+        v
+start_job_begun -> unit_succeeded
+        |
+        X  no health, anomaly, causality, or security conclusion
+```
 
 The production analogue is:
 
@@ -291,3 +323,7 @@ recorded in
 The independent semantic-facet versioning, subject-identity, and descriptive
 lifecycle boundary are recorded in
 [Decision 0021](decisions/0021-versioned-semantic-facets.md).
+
+The structured-only systemd lifecycle extension and semantic-facet version-2
+compatibility decision are recorded in
+[Decision 0022](decisions/0022-structured-systemd-lifecycle-semantic-facets-v2.md).

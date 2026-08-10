@@ -45,7 +45,7 @@ def test_analyze_semantic_evidence_json_to_stdout(
     provenance = document["payload"]["provenance"]
     assert provenance["window_id"] == "issue-37-cli"
     assert provenance["taxonomy_version"] == "2"
-    assert provenance["semantic_facets_version"] == "1"
+    assert provenance["semantic_facets_version"] == "2"
 
     events = document["payload"]["events"]
     assert len(events) == 6

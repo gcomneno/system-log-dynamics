@@ -14,6 +14,12 @@ DECISION = (
     / "0019-downstream-ids-integration-and-trust-boundary.md"
 )
 SEMANTIC_DECISION = ROOT / "docs" / "decisions" / "0021-versioned-semantic-facets.md"
+SEMANTIC_V2_DECISION = (
+    ROOT
+    / "docs"
+    / "decisions"
+    / "0022-structured-systemd-lifecycle-semantic-facets-v2.md"
+)
 
 CONTRACT = ROOT / "docs" / "downstream-ids-integration-contract.md"
 SEMANTIC_REFERENCE = ROOT / "docs" / "semantic-evidence-v1.md"
@@ -37,6 +43,7 @@ def _read(path: Path) -> str:
 def test_public_boundary_documents_exist_and_are_indexed() -> None:
     assert DECISION.is_file()
     assert SEMANTIC_DECISION.is_file()
+    assert SEMANTIC_V2_DECISION.is_file()
     assert CONTRACT.is_file()
     assert SEMANTIC_REFERENCE.is_file()
 
@@ -46,6 +53,8 @@ def test_public_boundary_documents_exist_and_are_indexed() -> None:
     assert "Downstream IDS integration and trust boundary" in index
     assert "0021-versioned-semantic-facets.md" in index
     assert "Versioned semantic facets for downstream explanation" in index
+    assert "0022-structured-systemd-lifecycle-semantic-facets-v2.md" in index
+    assert "Structured systemd lifecycle semantic facets v2" in index
 
 
 def test_readme_declares_evidence_engine_not_ids_boundary() -> None:
@@ -70,7 +79,7 @@ def test_contract_accepts_only_explicit_versioned_evidence() -> None:
         "`window_comparison`",
         "`semantic_events`",
         "Version `1` is the only currently accepted schema version",
-        "semantic-facet version `1`",
+        "semantic-facet version `2`",
         "parse_evidence_bundle_json()",
         "parse_semantic_evidence_json()",
         "Consumers must reject:",
@@ -99,6 +108,28 @@ def test_contract_requires_reproducibility_provenance() -> None:
         "right_minus_left",
     ):
         assert field in contract
+
+
+def test_semantic_v2_contract_is_structured_only() -> None:
+    contract = _read(CONTRACT)
+    decision = _read(SEMANTIC_V2_DECISION)
+
+    for phrase in (
+        "start_job_begun",
+        "unit_succeeded",
+        "SYSLOG_IDENTIFIER=systemd",
+        "UNIT` or `USER_UNIT",
+        "DBus activation/timeout",
+        "CRON session open/close",
+    ):
+        assert phrase in contract
+
+    for phrase in (
+        "7d4958e842da4a758f6c1cdc7b36dcc5",
+        "7ad2d189f7e94e70a38c781354912448",
+        "does not use broad free-text message parsing",
+    ):
+        assert phrase in decision
 
 
 def test_observation_to_incident_vocabulary_has_explicit_ownership() -> None:
@@ -167,6 +198,7 @@ def test_synthetic_examples_stop_before_security_interpretation() -> None:
 
     assert "fixtures/synthetic/experiment-001-routine.jsonl" in contract
     assert "fixtures/synthetic/restart-loop-semantic.jsonl" in contract
+    assert "fixtures/synthetic/systemd-lifecycle-semantic-v2.jsonl" in contract
     assert "boundary stops here" in contract
     assert "security interpretation begins only downstream" in contract
     assert (
