@@ -109,10 +109,9 @@ def test_review_fixture_has_explicit_taxonomy_coverage() -> None:
     coverage = build_taxonomy_coverage(result)
 
     assert coverage.sample_size == 15
-    assert coverage.named_event_count == 13
-    assert coverage.other_event_count == 2
+    assert coverage.named_event_count == 12
+    assert coverage.other_event_count == 3
     assert coverage.represented_named_symbols == (
-        0,
         1,
         2,
         3,
@@ -120,5 +119,5 @@ def test_review_fixture_has_explicit_taxonomy_coverage() -> None:
         5,
         7,
     )
-    assert coverage.absent_named_symbols == (6,)
+    assert coverage.absent_named_symbols == (0, 6)
     assert coverage.status is CoverageStatus.MIXED

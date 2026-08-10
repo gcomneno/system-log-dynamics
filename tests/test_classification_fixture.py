@@ -74,7 +74,7 @@ def test_classification_fixture_covers_complete_taxonomy() -> None:
 def test_missing_boot_identifier_preserves_boot_context() -> None:
     expected = read_expected()
 
-    assert expected[0]["event_type"] == "boot_boundary"
+    assert expected[0]["event_type"] == "other"
     assert expected[9]["event_type"] == "other"
     assert expected[10]["event_type"] == "service_started"
     assert expected[12]["event_type"] == "boot_boundary"

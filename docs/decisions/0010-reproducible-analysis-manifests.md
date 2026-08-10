@@ -112,7 +112,7 @@ deliberate schema-version change.
 The event contract is explicitly versioned:
 
 ```python
-EVENT_TAXONOMY_VERSION = "1"
+EVENT_TAXONOMY_VERSION = "2"
 ```
 
 The version covers the combined semantics of:
