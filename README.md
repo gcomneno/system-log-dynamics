@@ -275,6 +275,66 @@ fixtures/reports/experiment-001-routine.evidence.json
 fixtures/reports/experiment-001-comparison.evidence.json
 ```
 
+## Downstream IDS integration boundary
+
+System Log Dynamics is an evidence engine, not an IDS.
+
+Its responsibility ends at deterministic descriptive evidence with explicit
+provenance and semantic limitations. A separate downstream consumer may add
+security-domain correlation, signals, alerts, incident hypotheses, confirmed
+incidents, reviewed triggers, AI-assisted interpretation, or response
+workflows, but none of those concepts is a System Log Dynamics output.
+
+The current consumer contract accepts evidence schema version `1` only.
+Consumers must perform strict complete-payload validation, reject unsupported
+versions, and preserve the source schema, project and Digit-Probe versions,
+manifest and taxonomy versions, input digest and size, window identifier, and
+effective analysis configuration.
+
+Raw journal bytes and privacy-sensitive source fields are not required by the
+default downstream contract. Hashes establish input-byte identity, not truth,
+authenticity, completeness, or absence of prior tampering. Derived evidence
+also requires data-minimization review before publication.
+
+The vocabulary boundary is explicit:
+
+- an **observation** is descriptive System Log Dynamics evidence;
+- a **signal** is a downstream security-relevant interpretation;
+- an **alert** is a downstream workflow object, not incident confirmation;
+- an **incident hypothesis** is a provisional downstream explanation;
+- a **confirmed incident** is a downstream organizational or analyst
+  conclusion.
+
+AI output in a downstream system is untrusted advisory material until it is
+converted into an explicitly reviewed rule or analyst conclusion. An evidence
+bundle alone never authorizes a trigger or response action.
+
+A privacy-safe synthetic analogue of the integration boundary is:
+
+```text
+fixtures/synthetic/experiment-001-routine.jsonl
+        -> System Log Dynamics evidence schema v1
+        -> strict downstream consumer
+        -> STOP at the System Log Dynamics boundary
+```
+
+The production form is conceptually:
+
+```text
+private journal bytes
+        -> System Log Dynamics evidence
+        -> downstream consumer
+```
+
+Private journal bytes stay on the System Log Dynamics side by default. The
+example stops before signal derivation, alerting, incident interpretation,
+triggering, AI interpretation, notification, or response.
+
+See the
+[downstream IDS integration contract](docs/downstream-ids-integration-contract.md)
+and Decision 0019 for the complete compatibility, provenance, privacy, trust,
+audit, AI, and response boundaries.
+
 ## Optional local journal acquisition
 
 Collection is deliberately separate from analysis:
@@ -351,7 +411,9 @@ The accepted boundaries and their rationale are indexed in
 Decision 0016 records why 0.1.0 is the first public milestone and why the
 Digit-Probe commit pin remains in place. Decision 0018 defines the versioned
 machine-readable evidence boundary and its privacy, determinism, evolution,
-and semantic constraints.
+and semantic constraints. Decision 0019 defines the downstream IDS
+integration and trust boundary and keeps security interpretation, AI,
+triggering, alerting, incident handling, and response outside this repository.
 
 ## Development
 
