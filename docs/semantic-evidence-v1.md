@@ -111,6 +111,35 @@ for the same subject twice, with relative ordering and timing preserved.
 
 The fixture is synthetic and does not copy private Ubuntu journal contents.
 
+## CLI
+
+Semantic evidence is available as an explicit `analyze` output format:
+
+```text
+system-log-dynamics analyze INPUT \
+    --window-id WINDOW \
+    --format semantic-evidence-json
+```
+
+The output is the same `system-log-dynamics.semantic-evidence` schema version 1
+document produced by the Python API. It may be written to standard output or to
+an explicit file with `-o/--output`; existing overwrite, UTF-8, path-safety, and
+atomic-write behavior applies unchanged.
+
+`--format evidence-json` remains the existing analysis/statistical evidence
+contract and still emits `system-log-dynamics.analysis-evidence` with bundle
+type `analysis_window`. Semantic evidence is a separate product and does not
+replace or extend that legacy CLI format in place.
+
+`semantic-evidence-json` is intentionally available only for `analyze`.
+`compare` has no semantic comparison contract in version 1 and continues to
+accept only `markdown` and `evidence-json`.
+
+Semantic output remains descriptive evidence, not an IDS verdict. Normalized
+service-unit subjects are retained so downstream consumers can explain the
+observed lifecycle; those identifiers remain privacy-sensitive derived evidence
+and require review before publication.
+
 ## Python API
 
 ```python
