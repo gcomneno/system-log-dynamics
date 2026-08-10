@@ -25,3 +25,4 @@ limitations travel with the package.
 | [0017](0017-taxonomy-coverage-and-vocabulary-review.md) | Taxonomy coverage and Linux vocabulary review |
 | [0018](0018-versioned-machine-readable-evidence-bundle.md) | Versioned machine-readable evidence bundle |
 | [0019](0019-downstream-ids-integration-and-trust-boundary.md) | Downstream IDS integration and trust boundary |
+| [0020](0020-observed-boot-transition-semantics.md) | Observed boot-transition semantics |

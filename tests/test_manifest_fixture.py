@@ -30,7 +30,7 @@ EXPECTED_INPUT_SHA256 = (
 )
 EXPECTED_DIGIT_PROBE_COMMIT = "55e3eae4c55017703e023c1aaac0838b873482db"
 EXPECTED_COUNTS = {
-    0: 2,
+    0: 1,
     1: 2,
     2: 1,
     3: 1,
@@ -38,7 +38,7 @@ EXPECTED_COUNTS = {
     5: 2,
     6: 2,
     7: 1,
-    8: 2,
+    8: 3,
 }
 
 
@@ -66,7 +66,7 @@ def test_complete_pipeline_builds_exact_input_manifest() -> None:
     assert manifest.schema_version == 1
     assert manifest.window_id == ("classification-fixture")
     assert manifest.taxonomy_version == (EVENT_TAXONOMY_VERSION)
-    assert manifest.taxonomy_version == "1"
+    assert manifest.taxonomy_version == "2"
     assert manifest.input_digest_algorithm == (INPUT_DIGEST_ALGORITHM)
     assert manifest.input_digest_algorithm == "sha256"
     assert manifest.input_sha256 == (EXPECTED_INPUT_SHA256)

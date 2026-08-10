@@ -95,7 +95,7 @@ def test_classifier_is_lazy() -> None:
     assert consumed == [0]
 
 
-def test_first_known_boot_is_boundary() -> None:
+def test_first_known_boot_initializes_context_without_boundary() -> None:
     classified = classify_one(
         make_event(
             boot_index=0,
@@ -104,9 +104,9 @@ def test_first_known_boot_is_boundary() -> None:
         )
     )
 
-    assert classified.event_type is EventType.BOOT_BOUNDARY
-    assert classified.rule_id == "boot.index.changed"
-    assert classified.evidence is EvidenceLevel.EXACT
+    assert classified.event_type is EventType.SERVICE_STARTED
+    assert classified.rule_id == "service.message.started"
+    assert classified.evidence is EvidenceLevel.HEURISTIC
     assert classified.source_domain is SourceDomain.SERVICE
 
 
@@ -121,11 +121,34 @@ def test_boot_context_survives_missing_boot_identifier() -> None:
     classified = list(iter_classified_events(events))
 
     assert [item.event_type for item in classified] == [
-        EventType.BOOT_BOUNDARY,
+        EventType.OTHER,
         EventType.OTHER,
         EventType.OTHER,
         EventType.BOOT_BOUNDARY,
     ]
+
+
+def test_first_known_boot_after_missing_values_only_initializes_context() -> None:
+    events = [
+        make_event(sequence_index=0, boot_index=None),
+        make_event(sequence_index=1, boot_index=7),
+        make_event(sequence_index=2, boot_index=None),
+        make_event(sequence_index=3, boot_index=7),
+        make_event(sequence_index=4, boot_index=8),
+    ]
+
+    classified = list(iter_classified_events(events))
+
+    assert [item.event_type for item in classified] == [
+        EventType.OTHER,
+        EventType.OTHER,
+        EventType.OTHER,
+        EventType.OTHER,
+        EventType.BOOT_BOUNDARY,
+    ]
+
+    assert classified[-1].rule_id == "boot.index.changed"
+    assert classified[-1].evidence is EvidenceLevel.EXACT
 
 
 @pytest.mark.parametrize(

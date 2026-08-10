@@ -346,7 +346,18 @@ def iter_classified_events(
     for event in events:
         source_domain = _source_domain(event)
 
-        if event.boot_index is not None and event.boot_index != most_recent_known_boot:
+        if event.boot_index is None:
+            match = _classify_without_boot_boundary(
+                event,
+                source_domain,
+            )
+        elif most_recent_known_boot is None:
+            most_recent_known_boot = event.boot_index
+            match = _classify_without_boot_boundary(
+                event,
+                source_domain,
+            )
+        elif event.boot_index != most_recent_known_boot:
             match = _RuleMatch(
                 event_type=EventType.BOOT_BOUNDARY,
                 rule_id="boot.index.changed",

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- Changed `boot_boundary` semantics so taxonomy version 2 emits it only for a
+  transition between two distinct known boot indexes observed inside the
+  accepted stream. The first known boot now initializes context and receives
+  normal event classification.
+
 ### Added
 
 - Added Decision 0019 and a public downstream IDS integration contract that

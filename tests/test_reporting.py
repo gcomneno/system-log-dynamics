@@ -925,7 +925,7 @@ def test_experiment_001_routine_report_matches_golden_bytes() -> None:
 
     assert len(golden_bytes) == 4517
     assert hashlib.sha256(golden_bytes).hexdigest() == (
-        "94c1a33cca579e8bdecb21bdce0a9d85d2ec64a0f2350e2dafd833dd972b1b20"
+        "ecd87ad13d7ede1017e147e8130a89b9c20242f270f18c347d3a87a4e591a7e5"
     )
     assert rendered_bytes == golden_bytes
 
@@ -962,8 +962,8 @@ def test_experiment_001_comparison_report_matches_golden_bytes() -> None:
         )
     ).encode("utf-8")
 
-    assert len(golden_bytes) == 5725
+    assert len(golden_bytes) == 5746
     assert hashlib.sha256(golden_bytes).hexdigest() == (
-        "1f50fa5423f57c4c9d17d27a0d717b4974be86ccfb167c3748c8f1977989cf58"
+        "81ff59a4a439262c875d7c4c76d28c0903ec2862a1c8d9b47278b52ce16260d7"
     )
     assert rendered_bytes == golden_bytes

@@ -549,7 +549,7 @@ def test_analysis_bundle_carries_exact_provenance() -> None:
         "55e3eae4c55017703e023c1aaac0838b873482db"
     )
     assert provenance["manifest_schema_version"] == 1
-    assert provenance["taxonomy_version"] == "1"
+    assert provenance["taxonomy_version"] == "2"
     assert provenance["window_id"] == ("experiment-001-routine")
 
     assert provenance["input"] == {
@@ -864,8 +864,8 @@ def test_comparison_bundle_carries_coverage_delta() -> None:
 
     coverage = envelope.payload["comparison"]["taxonomy_coverage"]
 
-    assert coverage["named_event_count_delta"] == 5
-    assert coverage["other_event_count_delta"] == -5
+    assert coverage["named_event_count_delta"] == 4
+    assert coverage["other_event_count_delta"] == -4
     assert coverage["represented_named_category_count_delta"] == 2
 
     assert coverage["newly_represented_named_symbols"] == (0, 4, 7)
@@ -920,7 +920,7 @@ def test_comparison_bundle_carries_compatibility() -> None:
     compatibility = envelope.payload["comparison"]["compatibility"]
 
     assert compatibility["manifest_schema_version"] == 1
-    assert compatibility["taxonomy_version"] == "1"
+    assert compatibility["taxonomy_version"] == "2"
     assert compatibility["alphabet_size"] == 9
     assert compatibility["input_digest_algorithm"] == "sha256"
 

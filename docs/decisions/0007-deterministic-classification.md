@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for issue #3 on 2026-07-31.
+Accepted for issue #3 on 2026-07-31. The boot-boundary streaming rule is superseded by Decision 0020.
 
 ## Streaming state
 

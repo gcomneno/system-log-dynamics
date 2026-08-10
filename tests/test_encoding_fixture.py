@@ -32,7 +32,7 @@ EXPECTED_MAPPING = {
 }
 
 EXPECTED_SYMBOLS = [
-    0,
+    8,
     1,
     5,
     5,

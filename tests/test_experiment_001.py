@@ -87,7 +87,7 @@ ROUTINE_SYMBOLS = (
 )
 
 BURST_SYMBOLS = (
-    0,
+    8,
     1,
     6,
     4,
@@ -126,7 +126,7 @@ ROUTINE_COUNTS = {
 }
 
 BURST_COUNTS = {
-    0: 2,
+    0: 1,
     1: 4,
     2: 3,
     3: 0,
@@ -134,7 +134,7 @@ BURST_COUNTS = {
     5: 1,
     6: 4,
     7: 4,
-    8: 4,
+    8: 5,
 }
 
 ROUTINE_REALTIME_US = (
@@ -322,10 +322,10 @@ ROUTINE_CLASSIFICATION = (
 
 BURST_CLASSIFICATION = (
     (
-        "boot_boundary",
+        "other",
         "kernel",
-        "boot.index.changed",
-        "exact",
+        "fallback.other",
+        "fallback",
     ),
     (
         "service_started",
@@ -736,7 +736,7 @@ def test_complete_per_window_contract(
     assert manifest.schema_version == (ANALYSIS_MANIFEST_SCHEMA_VERSION)
     assert manifest.schema_version == 1
     assert manifest.taxonomy_version == (EVENT_TAXONOMY_VERSION)
-    assert manifest.taxonomy_version == "1"
+    assert manifest.taxonomy_version == "2"
     assert manifest.input_digest_algorithm == (INPUT_DIGEST_ALGORITHM)
     assert manifest.input_digest_algorithm == ("sha256")
     assert manifest.project_version == "0.1.0"
@@ -843,7 +843,7 @@ def test_structured_window_comparison_contract(
     compatibility = comparison.compatibility
 
     assert compatibility.schema_version == 1
-    assert compatibility.taxonomy_version == "1"
+    assert compatibility.taxonomy_version == "2"
     assert compatibility.alphabet_size == 9
     assert compatibility.digit_probe_commit == (DIGIT_PROBE_COMMIT)
     assert compatibility.analysis_config == (
@@ -868,9 +868,9 @@ def test_structured_window_comparison_contract(
         assert item.count.delta.value == delta
         assert item.proportion.delta.value == (pytest.approx(delta / 24))
 
-    assert comparison.runs.z_score.delta.value == (pytest.approx(0.8932144078102322))
+    assert comparison.runs.z_score.delta.value == (pytest.approx(0.893214407810232))
     assert comparison.runs.p_two_tailed.delta.value == pytest.approx(
-        -0.18549374672922412
+        -0.1854937467292241
     )
     assert comparison.compression_ratio.delta.value == pytest.approx(0.0625)
 

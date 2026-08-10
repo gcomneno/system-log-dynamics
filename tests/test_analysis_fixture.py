@@ -20,7 +20,7 @@ from system_log_dynamics.journal import (
 EVENTS_PATH = Path("fixtures/synthetic/classification.jsonl")
 
 EXPECTED_COUNTS = {
-    0: 2,
+    0: 1,
     1: 2,
     2: 1,
     3: 1,
@@ -28,7 +28,7 @@ EXPECTED_COUNTS = {
     5: 2,
     6: 2,
     7: 1,
-    8: 2,
+    8: 3,
 }
 
 
