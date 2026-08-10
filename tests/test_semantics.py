@@ -29,6 +29,12 @@ def _classified_fixture():
         return tuple(iter_classified_events(iter_normalized_journal_json_lines(source)))
 
 
+def _classify_lines(lines: list[str]):
+    return tuple(
+        iter_classified_events(iter_normalized_journal_json_lines(lines))
+    )
+
+
 def test_restart_loop_fixture_preserves_small_primary_taxonomy() -> None:
     classified = _classified_fixture()
 
@@ -175,14 +181,51 @@ def test_semantic_parser_rejects_duplicate_keys() -> None:
 
 
 def test_unrecognized_other_remains_without_semantic_facet() -> None:
-    source = [
-        '{"__REALTIME_TIMESTAMP":"1","_BOOT_ID":"boot-a",'
-        '"PRIORITY":"6","MESSAGE":"opaque synthetic event",'
-        '"_TRANSPORT":"journal","SYSLOG_IDENTIFIER":"example"}\n'
-    ]
-    classified = tuple(
-        iter_classified_events(iter_normalized_journal_json_lines(source))
+    classified = _classify_lines(
+        [
+            '{"__REALTIME_TIMESTAMP":"1","_BOOT_ID":"boot-a",'
+            '"PRIORITY":"6","MESSAGE":"opaque synthetic event",'
+            '"_TRANSPORT":"journal","SYSLOG_IDENTIFIER":"example"}\n'
+        ]
     )
 
     assert classified[0].event_type is EventType.OTHER
     assert tuple(iter_semantic_events(classified)) == ()
+
+
+def test_lifecycle_message_id_without_structured_subject_is_not_invented() -> None:
+    classified = _classify_lines(
+        [
+            '{"__REALTIME_TIMESTAMP":"1","_BOOT_ID":"boot-a",'
+            '"PRIORITY":"6","MESSAGE":"synthetic restart notice",'
+            '"MESSAGE_ID":"5eb03494b6584870a536b337290809b3",'
+            '"_TRANSPORT":"journal","_SYSTEMD_UNIT":"init.scope",'
+            '"SYSLOG_IDENTIFIER":"systemd"}\n'
+        ]
+    )
+
+    assert tuple(iter_semantic_events(classified)) == ()
+
+
+def test_exact_lifecycle_match_precedes_generic_process_output_match() -> None:
+    classified = _classify_lines(
+        [
+            '{"__REALTIME_TIMESTAMP":"1","_BOOT_ID":"boot-a",'
+            '"PRIORITY":"6","MESSAGE":"synthetic conflicting record",'
+            '"MESSAGE_ID":"5eb03494b6584870a536b337290809b3",'
+            '"_TRANSPORT":"stdout","_SYSTEMD_UNIT":"producer.service",'
+            '"SYSLOG_IDENTIFIER":"systemd","UNIT":"target.service"}\n'
+        ]
+    )
+
+    semantic = tuple(iter_semantic_events(classified))
+
+    assert len(semantic) == 1
+    assert semantic[0].facets.family is SemanticFamily.SERVICE_LIFECYCLE
+    assert semantic[0].facets.action is SemanticAction.RESTART_SCHEDULED
+    assert semantic[0].facets.subject_unit == "target.service"
+    assert semantic[0].facets.transport is None
+    assert (
+        semantic[0].semantic_rule_id
+        == "semantic.systemd.restart_scheduled.message_id"
+    )
