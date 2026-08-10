@@ -30,8 +30,8 @@ __all__ = [
     "SEMANTIC_FACET_VERSION",
     "SemanticAction",
     "SemanticEvidenceEnvelope",
-    "SemanticFamily",
     "SemanticFacets",
+    "SemanticFamily",
     "SemanticJournalEvent",
     "build_semantic_evidence_envelope",
     "iter_semantic_events",
@@ -157,7 +157,9 @@ class SemanticEvidenceEnvelope:
 
 def _freeze_json(value: object) -> object:
     if isinstance(value, Mapping):
-        return MappingProxyType({str(key): _freeze_json(item) for key, item in value.items()})
+        return MappingProxyType(
+            {str(key): _freeze_json(item) for key, item in value.items()}
+        )
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_json(item) for item in value)
     if value is None or type(value) in {bool, int, float, str}:
@@ -379,13 +381,16 @@ def render_semantic_evidence_json(envelope: SemanticEvidenceEnvelope) -> str:
         "bundle_type": envelope.bundle_type,
         "payload": _thaw_json(envelope.payload),
     }
-    return json.dumps(
-        value,
-        ensure_ascii=False,
-        allow_nan=False,
-        separators=(",", ":"),
-        sort_keys=False,
-    ) + "\n"
+    return (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            allow_nan=False,
+            separators=(",", ":"),
+            sort_keys=False,
+        )
+        + "\n"
+    )
 
 
 def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -397,7 +402,11 @@ def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]
     return result
 
 
-def _strict_object(name: str, value: object, keys: tuple[str, ...]) -> dict[str, object]:
+def _strict_object(
+    name: str,
+    value: object,
+    keys: tuple[str, ...],
+) -> dict[str, object]:
     if type(value) is not dict or set(value) != set(keys):
         raise ValueError(f"{name} must contain exactly: " + ", ".join(keys))
     return value
@@ -534,8 +543,12 @@ def parse_semantic_evidence_json(data: str) -> SemanticEvidenceEnvelope:
             item["semantic"],
             ("family", "action", "subject", "transport", "rule_id", "evidence"),
         )
-        family = SemanticFamily(_strict_text("semantic.family", semantic_item["family"]))
-        action = SemanticAction(_strict_text("semantic.action", semantic_item["action"]))
+        family = SemanticFamily(
+            _strict_text("semantic.family", semantic_item["family"])
+        )
+        action = SemanticAction(
+            _strict_text("semantic.action", semantic_item["action"])
+        )
         subject = _strict_object(
             "semantic.subject",
             semantic_item["subject"],
