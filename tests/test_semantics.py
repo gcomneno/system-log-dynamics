@@ -26,9 +26,7 @@ FIXTURE = Path("fixtures/synthetic/restart-loop-semantic.jsonl")
 
 def _classified_fixture():
     with FIXTURE.open(encoding="utf-8") as source:
-        return tuple(
-            iter_classified_events(iter_normalized_journal_json_lines(source))
-        )
+        return tuple(iter_classified_events(iter_normalized_journal_json_lines(source)))
 
 
 def test_restart_loop_fixture_preserves_small_primary_taxonomy() -> None:
@@ -58,9 +56,7 @@ def test_restart_loop_fixture_recovers_descriptive_semantics() -> None:
         SemanticAction.PROCESS_OUTPUT,
         SemanticAction.PROCESS_EXITED,
     ]
-    assert {event.facets.subject_unit for event in semantic} == {
-        "demo-restart.service"
-    }
+    assert {event.facets.subject_unit for event in semantic} == {"demo-restart.service"}
     assert [event.facets.transport for event in semantic] == [
         None,
         "stdout",
