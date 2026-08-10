@@ -157,7 +157,10 @@ def test_semantic_parser_rejects_unknown_fields_and_versions() -> None:
 
     document = json.loads(rendered)
     document["schema_version"] = 2
-    with pytest.raises(ValueError, match="unsupported semantic evidence schema version"):
+    with pytest.raises(
+        ValueError,
+        match="unsupported semantic evidence schema version",
+    ):
         parse_semantic_evidence_json(json.dumps(document))
 
     document = json.loads(rendered)
