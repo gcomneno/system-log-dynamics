@@ -30,10 +30,15 @@ from .journal import (
     iter_normalized_journal_json_lines,
 )
 from .manifests import build_analysis_manifest
+from .models import ClassifiedJournalEvent, NormalizedJournalEvent
 from .reporting import (
     build_window_comparison_report,
     render_analysis_window_markdown,
     render_window_comparison_markdown,
+)
+from .semantics import (
+    build_semantic_evidence_envelope,
+    render_semantic_evidence_json,
 )
 from .temporal import summarize_temporal_bursts
 
@@ -41,6 +46,16 @@ __all__ = ["ExitCode", "main"]
 
 DEFAULT_BURST_THRESHOLD_US = 100_000
 DEFAULT_SCHUR_CAPACITY = 5_000
+
+ANALYZE_FORMATS = (
+    "markdown",
+    "evidence-json",
+    "semantic-evidence-json",
+)
+COMPARE_FORMATS = (
+    "markdown",
+    "evidence-json",
+)
 
 
 class ExitCode(IntEnum):
@@ -114,7 +129,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--window-id",
         help="optional stable window identifier",
     )
-    _add_common_arguments(analyze)
+    _add_common_arguments(
+        analyze,
+        formats=ANALYZE_FORMATS,
+        format_help=(
+            "output format: markdown (default), versioned analysis evidence-json, "
+            "or versioned semantic-evidence-json"
+        ),
+    )
 
     compare = subparsers.add_parser(
         "compare",
@@ -138,7 +160,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--right-window-id",
         help="optional stable identifier for the right window",
     )
-    _add_common_arguments(compare)
+    _add_common_arguments(
+        compare,
+        formats=COMPARE_FORMATS,
+        format_help=(
+            "output format: markdown (default) or "
+            "versioned machine-readable evidence-json"
+        ),
+    )
 
     collect = subparsers.add_parser(
         "collect",
@@ -224,6 +253,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _add_common_arguments(
     parser: argparse.ArgumentParser,
+    *,
+    formats: Sequence[str],
+    format_help: str,
 ) -> None:
     parser.add_argument(
         "--burst-threshold-us",
@@ -245,18 +277,15 @@ def _add_common_arguments(
     )
     parser.add_argument(
         "--format",
-        choices=("markdown", "evidence-json"),
+        choices=tuple(formats),
         default="markdown",
-        help=(
-            "output format: markdown (default) or "
-            "versioned machine-readable evidence-json"
-        ),
+        help=format_help,
     )
     parser.add_argument(
         "-o",
         "--output",
         type=Path,
-        help="write UTF-8 Markdown to this file",
+        help="write UTF-8 output to this file",
     )
     parser.add_argument(
         "--overwrite",
@@ -288,13 +317,13 @@ def _decode_utf8(
         ) from error
 
 
-def _build_analysis_window(
+def _load_journal_events(
     path: Path,
-    *,
-    window_id: str | None,
-    config: AnalysisConfig,
-    burst_threshold_us: int,
-) -> AnalysisWindow:
+) -> tuple[
+    bytes,
+    tuple[NormalizedJournalEvent, ...],
+    tuple[ClassifiedJournalEvent, ...],
+]:
     input_bytes = _read_input_bytes(path)
     source_text = _decode_utf8(input_bytes, path)
 
@@ -312,6 +341,25 @@ def _build_analysis_window(
 
     try:
         classified = tuple(iter_classified_events(normalized))
+    except (TypeError, ValueError, RuntimeError) as error:
+        raise _CliFailure(
+            ExitCode.PIPELINE,
+            f"analysis pipeline failed: {error}",
+        ) from error
+
+    return input_bytes, normalized, classified
+
+
+def _build_analysis_window(
+    path: Path,
+    *,
+    window_id: str | None,
+    config: AnalysisConfig,
+    burst_threshold_us: int,
+) -> AnalysisWindow:
+    input_bytes, normalized, classified = _load_journal_events(path)
+
+    try:
         result = analyze_classified_events(
             classified,
             config=config,
@@ -454,28 +502,47 @@ def _emit_markdown(
 
 
 def _run_analyze(arguments: argparse.Namespace) -> None:
-    config = AnalysisConfig(
-        schur_capacity=arguments.schur_capacity,
-    )
-    window = _build_analysis_window(
-        arguments.input,
-        window_id=arguments.window_id,
-        config=config,
-        burst_threshold_us=arguments.burst_threshold_us,
-    )
+    if arguments.format == "semantic-evidence-json":
+        input_bytes, _, classified = _load_journal_events(arguments.input)
 
-    try:
-        if arguments.format == "markdown":
-            output_text = render_analysis_window_markdown(window)
-        elif arguments.format == "evidence-json":
-            output_text = render_evidence_json(build_analysis_evidence_envelope(window))
-        else:
-            raise RuntimeError(f"unsupported output format: {arguments.format}")
-    except (TypeError, ValueError, RuntimeError) as error:
-        raise _CliFailure(
-            ExitCode.PIPELINE,
-            f"reporting pipeline failed: {error}",
-        ) from error
+        try:
+            output_text = render_semantic_evidence_json(
+                build_semantic_evidence_envelope(
+                    input_bytes,
+                    classified,
+                    window_id=arguments.window_id,
+                )
+            )
+        except (TypeError, ValueError, RuntimeError) as error:
+            raise _CliFailure(
+                ExitCode.PIPELINE,
+                f"reporting pipeline failed: {error}",
+            ) from error
+    else:
+        config = AnalysisConfig(
+            schur_capacity=arguments.schur_capacity,
+        )
+        window = _build_analysis_window(
+            arguments.input,
+            window_id=arguments.window_id,
+            config=config,
+            burst_threshold_us=arguments.burst_threshold_us,
+        )
+
+        try:
+            if arguments.format == "markdown":
+                output_text = render_analysis_window_markdown(window)
+            elif arguments.format == "evidence-json":
+                output_text = render_evidence_json(
+                    build_analysis_evidence_envelope(window)
+                )
+            else:
+                raise RuntimeError(f"unsupported output format: {arguments.format}")
+        except (TypeError, ValueError, RuntimeError) as error:
+            raise _CliFailure(
+                ExitCode.PIPELINE,
+                f"reporting pipeline failed: {error}",
+            ) from error
 
     _emit_markdown(
         output_text,
