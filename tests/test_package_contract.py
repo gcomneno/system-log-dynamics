@@ -28,3 +28,28 @@ def test_project_exposes_console_script() -> None:
     assert pyproject["project"]["scripts"] == {
         "system-log-dynamics": ("system_log_dynamics.cli:main")
     }
+
+
+def test_evidence_contract_artifacts_are_packaged() -> None:
+    pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+
+    data_files = pyproject["tool"]["setuptools"]["data-files"]
+
+    assert data_files["share/system-log-dynamics/docs"] == [
+        "docs/*.md",
+    ]
+
+    assert data_files["share/system-log-dynamics/fixtures/reports"] == [
+        "fixtures/reports/*.md",
+        "fixtures/reports/*.json",
+    ]
+
+
+def test_evidence_public_documents_exist() -> None:
+    assert Path("docs/evidence-bundle-v1.md").is_file()
+
+    assert Path("docs/evidence-consumer-guide.md").is_file()
+
+    assert Path("fixtures/reports/experiment-001-routine.evidence.json").is_file()
+
+    assert Path("fixtures/reports/experiment-001-comparison.evidence.json").is_file()

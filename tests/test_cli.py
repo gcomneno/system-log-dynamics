@@ -15,6 +15,12 @@ ROUTINE = ROOT / "fixtures" / "synthetic" / "experiment-001-routine.jsonl"
 BURST = ROOT / "fixtures" / "synthetic" / "experiment-001-boot-error-burst.jsonl"
 ROUTINE_REPORT = ROOT / "fixtures" / "reports" / "experiment-001-routine.md"
 COMPARISON_REPORT = ROOT / "fixtures" / "reports" / "experiment-001-comparison.md"
+ROUTINE_EVIDENCE = (
+    ROOT / "fixtures" / "reports" / "experiment-001-routine.evidence.json"
+)
+COMPARISON_EVIDENCE = (
+    ROOT / "fixtures" / "reports" / "experiment-001-comparison.evidence.json"
+)
 
 
 def test_analyze_writes_exact_golden_to_stdout(
@@ -56,6 +62,155 @@ def test_compare_writes_exact_golden_to_stdout(
     assert status == cli.ExitCode.SUCCESS
     assert captured.out == COMPARISON_REPORT.read_text(encoding="utf-8")
     assert captured.err == ""
+
+
+def test_analyze_evidence_json_matches_golden_stdout(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    status = cli.main(
+        [
+            "analyze",
+            str(ROUTINE),
+            "--window-id",
+            "experiment-001-routine",
+            "--format",
+            "evidence-json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert status == cli.ExitCode.SUCCESS
+    assert captured.err == ""
+    assert captured.out == (ROUTINE_EVIDENCE.read_text(encoding="utf-8"))
+
+
+def test_compare_evidence_json_matches_golden_stdout(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    status = cli.main(
+        [
+            "compare",
+            str(ROUTINE),
+            str(BURST),
+            "--left-window-id",
+            "experiment-001-routine",
+            "--right-window-id",
+            "experiment-001-boot-error-burst",
+            "--format",
+            "evidence-json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert status == cli.ExitCode.SUCCESS
+    assert captured.err == ""
+    assert captured.out == (COMPARISON_EVIDENCE.read_text(encoding="utf-8"))
+
+
+def test_analyze_evidence_json_writes_atomically(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    output = tmp_path / "routine.evidence.json"
+
+    status = cli.main(
+        [
+            "analyze",
+            str(ROUTINE),
+            "--window-id",
+            "experiment-001-routine",
+            "--format",
+            "evidence-json",
+            "--output",
+            str(output),
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert status == cli.ExitCode.SUCCESS
+    assert captured.out == ""
+    assert captured.err == ""
+    assert output.read_bytes() == (ROUTINE_EVIDENCE.read_bytes())
+    assert not tuple(tmp_path.glob(".*.tmp"))
+
+
+@pytest.mark.parametrize(
+    "command",
+    ["analyze", "compare"],
+)
+def test_invalid_output_format_is_usage_error(
+    command: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    arguments = (
+        [
+            "analyze",
+            str(ROUTINE),
+        ]
+        if command == "analyze"
+        else [
+            "compare",
+            str(ROUTINE),
+            str(BURST),
+        ]
+    )
+
+    status = cli.main(
+        [
+            *arguments,
+            "--format",
+            "unsupported",
+        ]
+    )
+
+    captured = capsys.readouterr()
+
+    assert status == cli.ExitCode.USAGE
+    assert captured.out == ""
+    assert "invalid choice" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_evidence_default_window_id_is_not_path_dependent(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    first = tmp_path / "first.jsonl"
+    second = tmp_path / "second.jsonl"
+
+    first.write_bytes(ROUTINE.read_bytes())
+    second.write_bytes(ROUTINE.read_bytes())
+
+    first_status = cli.main(
+        [
+            "analyze",
+            str(first),
+            "--format",
+            "evidence-json",
+        ]
+    )
+    first_output = capsys.readouterr()
+
+    second_status = cli.main(
+        [
+            "analyze",
+            str(second),
+            "--format",
+            "evidence-json",
+        ]
+    )
+    second_output = capsys.readouterr()
+
+    assert first_status == cli.ExitCode.SUCCESS
+    assert second_status == cli.ExitCode.SUCCESS
+    assert first_output.err == ""
+    assert second_output.err == ""
+    assert first_output.out == second_output.out
+    assert str(first) not in first_output.out
+    assert str(second) not in second_output.out
 
 
 def test_analyze_writes_explicit_output_atomically(

@@ -953,11 +953,14 @@ def test_wheel_data_files_cover_experiment_assets() -> None:
 
     assert data_files == {
         "share/system-log-dynamics": ["CHANGELOG.md"],
-        "share/system-log-dynamics/docs": ["docs/release-process.md"],
+        "share/system-log-dynamics/docs": ["docs/*.md"],
         ("share/system-log-dynamics/docs/decisions"): ["docs/decisions/*.md"],
         ("share/system-log-dynamics/docs/experiments"): ["docs/experiments/*.md"],
         ("share/system-log-dynamics/docs/releases"): ["docs/releases/*.md"],
-        ("share/system-log-dynamics/fixtures/reports"): ["fixtures/reports/*.md"],
+        ("share/system-log-dynamics/fixtures/reports"): [
+            "fixtures/reports/*.md",
+            "fixtures/reports/*.json",
+        ],
         ("share/system-log-dynamics/fixtures/synthetic"): [
             "fixtures/synthetic/*.jsonl"
         ],
