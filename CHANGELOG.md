@@ -6,12 +6,25 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Bumped semantic facets from version 1 to version 2 while keeping semantic
+  evidence schema version 1 and primary taxonomy version 2 unchanged. Strict
+  semantic consumers must now explicitly support facet version 2.
 - Changed `boot_boundary` semantics so taxonomy version 2 emits it only for a
   transition between two distinct known boot indexes observed inside the
   accepted stream. The first known boot now initializes context and receives
   normal event classification.
 
 ### Added
+
+- Added structured systemd `start_job_begun` and `unit_succeeded` semantic
+  actions based only on exact upstream `MESSAGE_ID` values,
+  `SYSLOG_IDENTIFIER=systemd`, and structured `UNIT`/`USER_UNIT` subjects.
+- Added a synthetic systemd lifecycle v2 fixture covering two generic service
+  subjects, both unit-subject forms, exact-rule precedence, and free-text
+  negative cases for DBus and CRON.
+- Added Decision 0022 documenting the structured-only semantic-facet v2
+  extension, schema-v1 compatibility, and explicit rejection of message-text
+  inference where stable journal anchors are absent.
 
 - Added independently versioned semantic facets and
   `system-log-dynamics.semantic-evidence` schema version 1 so downstream
