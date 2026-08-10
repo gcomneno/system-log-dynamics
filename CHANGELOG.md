@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added Decision 0019 and a public downstream IDS integration contract that
+  freezes the evidence-engine boundary, accepted evidence version, provenance
+  preservation, privacy and hash trust model, and observation-to-incident
+  vocabulary.
+- Documented that signals, alerts, incident hypotheses, confirmed incidents,
+  AI interpretation, triggers, notification, and response remain downstream
+  responsibilities, with explicit audit and authorization boundaries.
+
 - Added versioned deterministic machine-readable evidence bundles for one
   analysis window and structured `right - left` comparisons through explicit
   `--format evidence-json`, while preserving Markdown as the CLI default.
