@@ -41,11 +41,13 @@ __all__ = [
 
 SEMANTIC_EVIDENCE_SCHEMA_NAME: Final = "system-log-dynamics.semantic-evidence"
 SEMANTIC_EVIDENCE_SCHEMA_VERSION: Final = 1
-SEMANTIC_FACET_VERSION: Final = "1"
+SEMANTIC_FACET_VERSION: Final = "2"
 SEMANTIC_BUNDLE_TYPE: Final = "semantic_events"
 
 SYSTEMD_RESTART_SCHEDULED_MESSAGE_ID: Final = "5eb03494b6584870a536b337290809b3"
 SYSTEMD_UNIT_PROCESS_EXITED_MESSAGE_ID: Final = "98e322203f7a4ed290d09fe03c09fe15"
+SYSTEMD_START_JOB_BEGUN_MESSAGE_ID: Final = "7d4958e842da4a758f6c1cdc7b36dcc5"
+SYSTEMD_UNIT_SUCCEEDED_MESSAGE_ID: Final = "7ad2d189f7e94e70a38c781354912448"
 
 
 class SemanticFamily(StrEnum):
@@ -60,6 +62,8 @@ class SemanticAction(StrEnum):
 
     RESTART_SCHEDULED = "restart_scheduled"
     PROCESS_EXITED = "process_exited"
+    START_JOB_BEGUN = "start_job_begun"
+    UNIT_SUCCEEDED = "unit_succeeded"
     PROCESS_OUTPUT = "process_output"
 
 
@@ -86,6 +90,8 @@ class SemanticFacets:
         if self.action in {
             SemanticAction.RESTART_SCHEDULED,
             SemanticAction.PROCESS_EXITED,
+            SemanticAction.START_JOB_BEGUN,
+            SemanticAction.UNIT_SUCCEEDED,
         }:
             if self.family is not SemanticFamily.SERVICE_LIFECYCLE:
                 raise ValueError("service lifecycle actions require service_lifecycle")
@@ -217,6 +223,38 @@ def _semantic_match(
                 subject_unit=structured_subject,
             ),
             "semantic.systemd.process_exited.message_id",
+            EvidenceLevel.EXACT,
+        )
+
+    systemd_identifier = (normalized.syslog_identifier or "").casefold()
+
+    if (
+        message_id == SYSTEMD_START_JOB_BEGUN_MESSAGE_ID
+        and systemd_identifier == "systemd"
+        and structured_subject is not None
+    ):
+        return (
+            SemanticFacets(
+                family=SemanticFamily.SERVICE_LIFECYCLE,
+                action=SemanticAction.START_JOB_BEGUN,
+                subject_unit=structured_subject,
+            ),
+            "semantic.systemd.start_job_begun.message_id",
+            EvidenceLevel.EXACT,
+        )
+
+    if (
+        message_id == SYSTEMD_UNIT_SUCCEEDED_MESSAGE_ID
+        and systemd_identifier == "systemd"
+        and structured_subject is not None
+    ):
+        return (
+            SemanticFacets(
+                family=SemanticFamily.SERVICE_LIFECYCLE,
+                action=SemanticAction.UNIT_SUCCEEDED,
+                subject_unit=structured_subject,
+            ),
+            "semantic.systemd.unit_succeeded.message_id",
             EvidenceLevel.EXACT,
         )
 
