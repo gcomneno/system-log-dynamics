@@ -11,7 +11,7 @@ from system_log_dynamics.models import (
 )
 
 EVENT_ALPHABET_SIZE = 9
-EVENT_TAXONOMY_VERSION = "1"
+EVENT_TAXONOMY_VERSION = "2"
 
 EVENT_TYPE_TO_SYMBOL: Mapping[EventType, int] = MappingProxyType(
     {

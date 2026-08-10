@@ -1,1 +1,1 @@
-{"alphabet_size":9,"event_type_to_symbol":{"boot_boundary":0,"service_started":1,"service_stopped":2,"authentication_success":3,"authentication_failure":4,"session_boundary":5,"warning":6,"error":7,"other":8},"symbols":[0,1,5,5,4,3,6,7,8,8,1,2,0,6]}
+{"alphabet_size":9,"event_type_to_symbol":{"boot_boundary":0,"service_started":1,"service_stopped":2,"authentication_success":3,"authentication_failure":4,"session_boundary":5,"warning":6,"error":7,"other":8},"symbols":[8,1,5,5,4,3,6,7,8,8,1,2,0,6]}

@@ -33,7 +33,7 @@ Taxonomy coverage describes how many events map to named taxonomy categories rat
 | --- | --- |
 | Window identifier | experiment\-001\-routine |
 | Manifest schema | 1 |
-| Taxonomy version | 1 |
+| Taxonomy version | 2 |
 | Input digest algorithm | sha256 |
 | Input SHA-256 | ee096cc33749b9d7d9dfd9ba69aa5c6fd582f433ec9cbaf5857a5335c7a5a3ee |
 | Input size (bytes) | 4969 |

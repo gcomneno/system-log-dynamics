@@ -93,7 +93,7 @@ def build_valid_manifest(
 
 def test_manifest_constants_are_explicit() -> None:
     assert ANALYSIS_MANIFEST_SCHEMA_VERSION == 1
-    assert EVENT_TAXONOMY_VERSION == "1"
+    assert EVENT_TAXONOMY_VERSION == "2"
     assert INPUT_DIGEST_ALGORITHM == "sha256"
 
 
@@ -142,7 +142,7 @@ def test_builder_records_default_contract(
     assert manifest == AnalysisManifest(
         schema_version=1,
         window_id="routine-session",
-        taxonomy_version="1",
+        taxonomy_version="2",
         input_digest_algorithm="sha256",
         input_sha256=hashlib.sha256(input_bytes).hexdigest(),
         input_size_bytes=len(input_bytes),
@@ -548,7 +548,7 @@ def test_builder_rejects_invalid_dependency_metadata(
     ("field", "value"),
     [
         ("schema_version", 2),
-        ("taxonomy_version", "2"),
+        ("taxonomy_version", "3"),
         ("input_digest_algorithm", "sha1"),
         ("input_sha256", "A" * 64),
         ("input_size_bytes", 0),

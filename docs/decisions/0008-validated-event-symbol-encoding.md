@@ -95,9 +95,9 @@ The end-to-end contract is:
         -> classified events
         -> validated integer symbols
 
-The expected sequence is:
+Under taxonomy version 2, the expected sequence is:
 
-    0, 1, 5, 5, 4, 3, 6, 7, 8, 8, 1, 2, 0, 6
+    8, 1, 5, 5, 4, 3, 6, 7, 8, 8, 1, 2, 0, 6
 
 ## Digit-Probe boundary
 

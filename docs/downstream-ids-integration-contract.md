@@ -19,6 +19,8 @@ A downstream consumer may accept these System Log Dynamics evidence documents:
 
 Version `1` is the only currently accepted evidence schema version.
 
+The current producer emits taxonomy version `2`. Taxonomy version is independent provenance: consumers must explicitly support the taxonomy semantics carried by a bundle and reject unsupported taxonomy versions rather than inferring compatibility from evidence schema version alone.
+
 Consumers should use `parse_evidence_bundle_json()` or an independently
 equivalent strict validator before accepting a bundle.
 
