@@ -30,9 +30,7 @@ def _classified_fixture():
 
 
 def _classify_lines(lines: list[str]):
-    return tuple(
-        iter_classified_events(iter_normalized_journal_json_lines(lines))
-    )
+    return tuple(iter_classified_events(iter_normalized_journal_json_lines(lines)))
 
 
 def test_restart_loop_fixture_preserves_small_primary_taxonomy() -> None:
@@ -226,6 +224,5 @@ def test_exact_lifecycle_match_precedes_generic_process_output_match() -> None:
     assert semantic[0].facets.subject_unit == "target.service"
     assert semantic[0].facets.transport is None
     assert (
-        semantic[0].semantic_rule_id
-        == "semantic.systemd.restart_scheduled.message_id"
+        semantic[0].semantic_rule_id == "semantic.systemd.restart_scheduled.message_id"
     )
