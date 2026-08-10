@@ -13,6 +13,22 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added independently versioned semantic facets and
+  `system-log-dynamics.semantic-evidence` schema version 1 so downstream
+  consumers can recover selected deterministic Linux/systemd lifecycle meaning
+  without expanding the primary nine-symbol Digit-Probe taxonomy.
+- Added exact structured semantics for systemd restart scheduling, systemd unit
+  process exit, and service stdout/stderr output, including normalized service
+  subjects and privacy-safe relative timing while excluding raw journal
+  messages and security or causality conclusions.
+- Added a public synthetic restart-loop acceptance fixture proving that primary
+  `other` events can retain the same taxonomy symbols while semantic evidence
+  recovers `restart_scheduled -> process_output -> process_exited` lifecycle
+  observations for a common service.
+- Added Decision 0021, the semantic-evidence v1 reference, strict semantic JSON
+  parsing and deterministic roundtrip validation, and downstream IDS contract
+  support for independent semantic-facet versioning.
+
 - Added Decision 0019 and a public downstream IDS integration contract that
   freezes the evidence-engine boundary, accepted evidence version, provenance
   preservation, privacy and hash trust model, and observation-to-incident
