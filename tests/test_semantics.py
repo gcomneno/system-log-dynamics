@@ -96,7 +96,7 @@ def test_semantic_evidence_is_versioned_strict_and_deterministic() -> None:
     assert (
         envelope.payload["provenance"]["semantic_facets_version"]
         == SEMANTIC_FACET_VERSION
-        == "1"
+        == "2"
     )
     assert envelope.payload["coverage"] == {
         "source_event_count": 6,
@@ -164,7 +164,7 @@ def test_semantic_parser_rejects_unknown_fields_and_versions() -> None:
         parse_semantic_evidence_json(json.dumps(document))
 
     document = json.loads(rendered)
-    document["payload"]["provenance"]["semantic_facets_version"] = "2"
+    document["payload"]["provenance"]["semantic_facets_version"] = "1"
     with pytest.raises(ValueError, match="unsupported semantic facets version"):
         parse_semantic_evidence_json(json.dumps(document))
 
