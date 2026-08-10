@@ -19,6 +19,11 @@ from . import collection
 from .analysis import analyze_classified_events
 from .classification import iter_classified_events
 from .comparison import AnalysisWindow
+from .evidence import (
+    build_analysis_evidence_envelope,
+    build_comparison_evidence_envelope,
+    render_evidence_json,
+)
 from .journal import (
     JournalNormalizationError,
     JournalParseError,
@@ -239,6 +244,15 @@ def _add_common_arguments(
         ),
     )
     parser.add_argument(
+        "--format",
+        choices=("markdown", "evidence-json"),
+        default="markdown",
+        help=(
+            "output format: markdown (default) or "
+            "versioned machine-readable evidence-json"
+        ),
+    )
+    parser.add_argument(
         "-o",
         "--output",
         type=Path,
@@ -451,7 +465,12 @@ def _run_analyze(arguments: argparse.Namespace) -> None:
     )
 
     try:
-        markdown = render_analysis_window_markdown(window)
+        if arguments.format == "markdown":
+            output_text = render_analysis_window_markdown(window)
+        elif arguments.format == "evidence-json":
+            output_text = render_evidence_json(build_analysis_evidence_envelope(window))
+        else:
+            raise RuntimeError(f"unsupported output format: {arguments.format}")
     except (TypeError, ValueError, RuntimeError) as error:
         raise _CliFailure(
             ExitCode.PIPELINE,
@@ -459,7 +478,7 @@ def _run_analyze(arguments: argparse.Namespace) -> None:
         ) from error
 
     _emit_markdown(
-        markdown,
+        output_text,
         output_path=arguments.output,
         overwrite=arguments.overwrite,
         input_paths=(arguments.input,),
@@ -485,11 +504,21 @@ def _run_compare(arguments: argparse.Namespace) -> None:
     )
 
     try:
-        report = build_window_comparison_report(
-            left,
-            right,
-        )
-        markdown = render_window_comparison_markdown(report)
+        if arguments.format == "markdown":
+            report = build_window_comparison_report(
+                left,
+                right,
+            )
+            output_text = render_window_comparison_markdown(report)
+        elif arguments.format == "evidence-json":
+            output_text = render_evidence_json(
+                build_comparison_evidence_envelope(
+                    left,
+                    right,
+                )
+            )
+        else:
+            raise RuntimeError(f"unsupported output format: {arguments.format}")
     except (TypeError, ValueError, RuntimeError) as error:
         raise _CliFailure(
             ExitCode.PIPELINE,
@@ -497,7 +526,7 @@ def _run_compare(arguments: argparse.Namespace) -> None:
         ) from error
 
     _emit_markdown(
-        markdown,
+        output_text,
         output_path=arguments.output,
         overwrite=arguments.overwrite,
         input_paths=(arguments.left, arguments.right),
