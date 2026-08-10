@@ -13,12 +13,7 @@ DECISION = (
     / "decisions"
     / "0019-downstream-ids-integration-and-trust-boundary.md"
 )
-SEMANTIC_DECISION = (
-    ROOT
-    / "docs"
-    / "decisions"
-    / "0021-versioned-semantic-facets.md"
-)
+SEMANTIC_DECISION = ROOT / "docs" / "decisions" / "0021-versioned-semantic-facets.md"
 
 CONTRACT = ROOT / "docs" / "downstream-ids-integration-contract.md"
 SEMANTIC_REFERENCE = ROOT / "docs" / "semantic-evidence-v1.md"
