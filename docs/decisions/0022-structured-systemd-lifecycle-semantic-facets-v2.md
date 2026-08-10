@@ -64,7 +64,8 @@ Exact lifecycle rules take precedence over generic service stdout/stderr
 
 Host-specific service names do not participate in rule selection.
 
-The semantic layer must not recognize DBus activation/timeout or CRON session
+Semantic facets version 2 does not use broad free-text message parsing. The
+semantic layer must not recognize DBus activation/timeout or CRON session
 open/close from free-text `MESSAGE` patterns. Similar text paired with an
 unrelated message ID must also remain unrecognized.
 
